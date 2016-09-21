@@ -1,0 +1,23 @@
+{
+  "name": "AncientGraphSpreadingExample",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "ancient-graph": "0.0.29",
+    "ancient-graph-removed": "0.0.2",
+    "ancient-graph-spreading": "git@github.com:AncientSouls/GraphSpreading.git",
+    "async": "^2.0.1",
+    "lodash": "^4.16.1",
+    "material-ui": "^0.15.4",
+    "meteor-node-stubs": "~0.2.0",
+    "react": "^15.3.1",
+    "react-addons-pure-render-mixin": "^15.3.1",
+    "react-dnd": "^2.1.4",
+    "react-dnd-html5-backend": "^2.1.2",
+    "react-dom": "^15.3.1",
+    "react-tap-event-plugin": "^1.0.0",
+    "react-tooltip": "^3.1.8"
+  }
+}
