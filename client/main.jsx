@@ -16,10 +16,6 @@ import { factoryExistedGraph, factoryNonExistedGraph } from 'ancient-graph-remov
 import { Documents, Document } from './documents';
 import { Drag, Drop } from './dnd';
 
-injectTapEventPlugin();
-
-// Collections
-
 removeAncientItem = function(item) {
   if (!item.launched || !item.launched.length) {
     Nesting.graph.remove({ target: item.id });
@@ -32,15 +28,6 @@ import '../imports/items';
 import '../imports/nesting';
 import '../imports/allow';
 import '../imports/allower';
-import '../imports/deny';
-import '../imports/denier';
-
-Items.after.remove((userId, doc) => {
-  Nesting.graph.remove({ target: doc._id });
-  Nesting.graph.remove({ source: doc._id });
-});
-
-// Demo documents
 
 var u0 = Users.insert({});
 var u1 = Users.insert({});
@@ -51,6 +38,8 @@ var i1 = Items.insert({});
 
 var n0 = Nesting.insert({ source: u0, target: i0 });
 var n1 = Nesting.insert({ source: u0, target: i1 });
+
+injectTapEventPlugin();
 
 var Authorization = createContainer(() => {
   return {
@@ -86,17 +75,6 @@ class Page extends React.Component {
     return (
       <div>
         <div>
-          <button
-            onClick={() => {
-              Nesting.graph.removed.remove({});
-              Allower.graph.removed.remove({});
-              Allow.graph.removed.remove({});
-            }}
-            style={{
-              backgroundColor: 'black', color: 'white',
-              marginLeft: 0, cursor: 'pointer'
-            }}
-          >remove <strike>removed</strike></button>
           <Drag action="insert" collection={Items}>
             <button
               style={{

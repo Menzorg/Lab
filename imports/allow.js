@@ -12,7 +12,7 @@ Allow = new Meteor.Collection(null, { ref: 'allow' });
 
 Allow.color = colors.lightGreen600;
 
-Allow.counter = 0;
+Allow.counter = 0; 
 
 Allow.before.insert(function (userId, doc) {
   doc._id = 'allow/'+Allow.counter;
@@ -39,7 +39,7 @@ var ExistedAllowGraph = (() => {
             source: allower.guarantor, target: newSpreadLink.target
           });
           if (!resolution) {
-            return callback(undefined);
+            // return callback(undefined);
           }
         }
       } else {
@@ -47,12 +47,26 @@ var ExistedAllowGraph = (() => {
       }
       // </AppRightsLogic>
       
-      this.fetch({
-        source: newSpreadLink.source, target: newSpreadLink.target,
-        spreader: newSpreadLink.spreader
-      }, undefined, (error, spreadLinks) => {
-        callback((!spreadLinks.length)?newSpreadLink:undefined);
-      });
+      if (pathLink) {
+        Nesting.graph.get(pathLink.id, undefined, (error, pathLink) => {
+          if (!pathLink) callback(undefined);
+          else this.get({
+            source: newSpreadLink.source, target: newSpreadLink.target
+          }, undefined, (error, spreadLink) => {
+            if (spreadLink) callback();
+            else this.get(prevSpreadLink.id, undefined, (error, prevSpreadLink) => {
+              callback(prevSpreadLink?newSpreadLink:undefined);
+            });
+          });
+        });
+      } else {
+        this.get({
+          source: newSpreadLink.source, target: newSpreadLink.target
+        }, undefined, (error, spreadLink) => {
+          if (spreadLink) callback();
+          else callback(newSpreadLink);
+        });
+      }
     }
   }
   return CustomExistedSpreadGraph;
