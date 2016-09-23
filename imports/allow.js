@@ -127,7 +127,9 @@ Allow.graph.removed.on('insert', (oldLink, newLink) => {
         }
       });
     }, () => {
-      Allow.graph.removed.update(newLink.id, { launched: { remove: 'respread' } });
+      Allow.spreading.spreadTo(newLink.target, undefined, undefined, () => {
+        Allow.graph.removed.update(newLink.id, { launched: { remove: 'respread' } });
+      });
     });
   });
 });
