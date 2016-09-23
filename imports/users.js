@@ -3,14 +3,14 @@ import colors from 'material-ui/styles/colors';
 
 import { ExistedGraph, NonExistedGraph } from './removed';
 
-Users = new Meteor.Collection(null, { ref: 'users' });
+Users = new Meteor.Collection(null, { ref: 'subjects' });
 
 Users.color = colors.grey900;
 
 Users.counter = 0;
 
 Users.before.insert(function (userId, doc) {
-  doc._id = 'users/'+Users.counter;
+  doc._id = 'subjects/'+Users.counter;
   Users.counter++;
 });
 
@@ -34,7 +34,7 @@ Users.after.insert(function (userId, doc) {
 Users.graph = new ExistedGraph(Users, {
     id: '_id',
     removed: 'removed', launched: 'launched'
-}, { name: 'users' });
+}, { name: 'subjects' });
 
 Users.graph.removed = new NonExistedGraph(
   Users.graph.collection, Users.graph.fields, Users.graph.config

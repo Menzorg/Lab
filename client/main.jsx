@@ -41,34 +41,34 @@ var n1 = Nesting.insert({ source: u0, target: i1 });
 
 injectTapEventPlugin();
 
-var Authorization = createContainer(() => {
-  return {
-    user: Users.findOne({ login: { $exists: true }}),
-  };
-}, class extends React.Component {
-  render() {
-    return (<Drop action="authorization">
-      <span>{!this.props.user?
-        <span>users/
-          <span style={{ color: colors.red700 }}>?</span>
-        </span>:
-        <span>
-          {this.props.user._id}
-          <span
-            style={{
-              color: colors.red700,
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              Users.update({ login: { $exists: true } }, { $unset: { login: "" }});
-            }}
-          > ✗ </span>
-        </span>
-      }
-      </span>
-    </Drop>);
-  }
-});
+// var Authorization = createContainer(() => {
+//   return {
+//     user: Users.findOne({ login: { $exists: true }}),
+//   };
+// }, class extends React.Component {
+//   render() {
+//     return (<Drop action="authorization">
+//       <span>{!this.props.user?
+//         <span>users/
+//           <span style={{ color: colors.red700 }}>?</span>
+//         </span>:
+//         <span>
+//           {this.props.user._id}
+//           <span
+//             style={{
+//               color: colors.red700,
+//               cursor: 'pointer'
+//             }}
+//             onClick={() => {
+//               Users.update({ login: { $exists: true } }, { $unset: { login: "" }});
+//             }}
+//           > ✗ </span>
+//         </span>
+//       }
+//       </span>
+//     </Drop>);
+//   }
+// });
 
 class Page extends React.Component {
   render() {
@@ -91,7 +91,6 @@ class Page extends React.Component {
               }}
             >+allower</button>
           </Drag>
-          <Authorization/>
         </div>
         <div>
           <br/>
