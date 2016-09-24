@@ -43,7 +43,7 @@ var Documents = createContainer(({ reference, collection, query, recursion }) =>
   };
 }, _Documents);
 
-class Document extends React.Component {
+class _Document extends React.Component {
   getChildContext() {
     var recursionProtection;
     if (this.context.recursionProtection) {
@@ -57,7 +57,7 @@ class Document extends React.Component {
     };
   }
   render() {
-    var { collection, document } = this.props;
+    var { collection, document, allowed } = this.props;
     var color, children, buttons, rights, title, content, style, recursion;
     
     color = this.props.collection.color;
@@ -73,16 +73,19 @@ class Document extends React.Component {
             collection={collection}
             document={document}
             field='source'
+            allowed={allowed}
           >(source)</Field>
           <Field
             collection={collection}
             document={document}
             field='target'
+            allowed={allowed}
           >(target)</Field>
           <Field
             collection={collection}
             document={document}
             field='guarantor'
+            allowed={allowed}
           >(guarantor)</Field>
         </span>)
         :
@@ -96,21 +99,30 @@ class Document extends React.Component {
       }
     </div>);
     
-    buttons = (<span
-        style={{
-          color: colors.red700,
-          marginLeft: 0, cursor: 'pointer'
-        }}
-        onClick={() => {
-          if (document.removed) collection.remove(document._id);
-          else collection.update(document._id, { $set: { removed: true } });
-        }}
-      >✗</span>);
+    if (collection != Users) {
+      buttons = (<span
+          style={{
+            color: allowed?colors.red700:colors.grey400,
+            marginLeft: 0, cursor: 'pointer'
+          }}
+          onClick={() => {
+            if (document.removed) collection.remove(document._id);
+            else collection.update(document._id, { $set: { removed: true } });
+          }}
+        >✗</span>);
+    } else {
+      buttons = (<span> </span>);
+    }
     
     rights = <Rights target={document.ref()}/>;
     
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
+    
+    if (!allowed) {
+      style.fontStyle = 'italic';
+    }
+    
     title = <span style={style}>{document.ref()}</span>;
     
     recursion = this.props.recursion || lodash.includes(this.context.recursionProtection, document.ref());
@@ -138,17 +150,24 @@ class Document extends React.Component {
   }
 }
 
-Document.contextTypes = {
+_Document.contextTypes = {
   recursionProtection: React.PropTypes.array
 };
 
-Document.childContextTypes = {
+_Document.childContextTypes = {
   recursionProtection: React.PropTypes.array
 };
+
+var Document = createContainer(({ before, collection, document, recursion }) => {
+  return {
+    before, collection, document, recursion,
+    allowed: Users.isAllowed(Meteor.user().ref(), document.ref())
+  };
+}, _Document);
 
 class Field extends React.Component {
   render() {
-    var { collection, document, field } = this.props;
+    var { collection, document, field, allowed } = this.props;
     var children;
     
     children = (<div>
@@ -169,15 +188,18 @@ class Field extends React.Component {
       >
         <span style={{ fontSize: '0.75em' }}>
           {this.props.children}
-          <span
-            style={{
-              color: colors.red700,
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              collection.update(document._id, { $unset: { [field]: '' } });
-            }}
-          > ✗ </span>
+          {collection != Users?
+            (<span
+              style={{
+                color: allowed?colors.red700:colors.grey400,
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                collection.update(document._id, { $unset: { [field]: '' } });
+              }}
+            > ✗ </span>)
+            :undefined
+          }
         </span>
       </Drop>
       <div style={{ paddingLeft: 25 }}>{children}</div>

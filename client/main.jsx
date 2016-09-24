@@ -18,6 +18,35 @@ import { Drag, Drop } from './dnd';
 
 injectTapEventPlugin();
 
+var Authorization = createContainer(() => {
+  return {
+    user: Meteor.user()
+  };
+}, class extends React.Component {
+  render() {
+    return (<Drop action="authorization">
+      <span>{!this.props.user?
+        <span>users/
+          <span style={{ color: colors.red700 }}>?</span>
+        </span>:
+        <span>
+          {this.props.user.ref()}
+          <span
+            style={{
+              color: colors.red700,
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              Meteor.logout();
+            }}
+          > ✗ </span>
+        </span>
+      }
+      </span>
+    </Drop>);
+  }
+});
+
 class Page extends React.Component {
   render() {
     return (
@@ -39,6 +68,7 @@ class Page extends React.Component {
               }}
             >+allower</button>
           </Drag>
+          <Authorization/>
         </div>
         <div>
           <br/>

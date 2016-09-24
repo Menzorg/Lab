@@ -3,6 +3,7 @@ import colors from 'material-ui/styles/colors';
 
 import { factoryPathGraph } from 'ancient-graph-spreading';
 import { ExistedGraph, NonExistedGraph } from './removed';
+import { refs } from './refs';
 
 Nesting = new Meteor.Collection('nesting');
 
@@ -40,3 +41,21 @@ if (Meteor.isServer) {
   Nesting.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
   Nesting.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }
+
+if (Meteor.isServer) Meteor.publish('nesting', () => {
+  return Nesting.find({ removed: { $exists: false }});
+});
+
+if (Meteor.isClient) Meteor.subscribe('nesting');
+
+Nesting.allow({
+  insert(userId, doc) {
+    return doc.source?Users.isAllowed(refs.generate(Users._ref, userId), doc.source):false;
+  },
+  update(userId, doc) {
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+  },
+  remove(userId, doc) {
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+  }
+})

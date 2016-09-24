@@ -11,7 +11,11 @@ var Drag = DragSource('dnd', {
     var drag = props;
     var drop =  monitor.getDropResult();
     if (drop) {
-      if (drop.collection && drop.document) {
+      if (drop.action == 'authorization') {
+        if (drag.collection == Users) {
+          Meteor.loginWithPassword(drag.document.username, drag.document.username);
+        }
+      } else if (drop.collection && drop.document) {
         if (drop.field) {
           switch (drag.action) {
             case 'nest':
@@ -31,7 +35,11 @@ var Drag = DragSource('dnd', {
                   Nesting.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
                   break;
                 case Allower:
-                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({})) });
+                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({
+                    guarantor: Meteor.userId()?Meteor.user().ref():undefined,
+                    source: Meteor.userId()?Meteor.user().ref():undefined,
+                    target: Meteor.userId()?Meteor.user().ref():undefined
+                  })) });
                   break;
               }
               break;

@@ -4,12 +4,15 @@ import colors from 'material-ui/styles/colors';
 import { ExistedGraph, NonExistedGraph } from './removed';
 import { refs } from './refs';
 
-Users = new Meteor.Collection('subjects');
+Users = Meteor.users;
 
 Users.color = colors.grey900;
 
 Users.isAllowed = function(sourceId, targetId, callback) {
-  var result = !!Allow.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
+  var result, storage;
+  storage = refs.storage(sourceId);
+  if (storage == Users && sourceId == targetId) result = true;
+  else result = !!Allow.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
   if (callback) callback(result);
   return result;
 };
@@ -42,3 +45,9 @@ if (Meteor.isServer) {
   Users.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
   Users.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }
+
+if (Meteor.isServer) Meteor.publish('users', () => {
+  return Users.find({ removed: { $exists: false }});
+});
+
+if (Meteor.isClient) Meteor.subscribe('users');

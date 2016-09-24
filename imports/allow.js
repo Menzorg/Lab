@@ -22,10 +22,9 @@ if (Meteor.isServer) {
           newSpreadLink.spreader = prevSpreadLink.spreader;
         }
         
-        
         // <AppRightsLogic>
         var allower = refs.get(newSpreadLink.spreader);
-        if (allower && allower.guarantor) {
+        if (allower && allower.guarantor && allower.source && allower.target) {
           if (!(
             allower.source == allower.target &&
             allower.source == allower.guarantor &&
@@ -130,3 +129,21 @@ if (Meteor.isServer) {
     });
   });
 }
+
+if (Meteor.isServer) Meteor.publish('allow', () => {
+  return Allow.find({ removed: { $exists: false }});
+});
+
+if (Meteor.isClient) Meteor.subscribe('allow');
+
+Allow.allow({
+  insert() {
+    return false;
+  },
+  update() {
+    return false;
+  },
+  remove() {
+    return false;
+  }
+})
