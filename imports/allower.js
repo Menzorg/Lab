@@ -67,7 +67,13 @@ Allower.allow({
       guarantor = modifier.guarantor?modifier.guarantor:(modifier.$set?modifier.$set.guarantor:undefined);
       if (guarantor != refs.generate(Users._ref, userId)) return false;
     }
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    if (lodash.includes(fields, 'target')) {
+      if (!Users.isAllowed(refs.generate(Users._ref, userId), doc.target)) return false;
+    }
+    
+    return (
+      Users.isAllowed(refs.generate(Users._ref, userId), doc.ref())
+    );
   },
   remove(userId, doc) {
     return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());

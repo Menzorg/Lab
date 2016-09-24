@@ -161,7 +161,7 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion }) => {
   return {
     before, collection, document, recursion,
-    allowed: Users.isAllowed(Meteor.user().ref(), document.ref())
+    allowed: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false
   };
 }, _Document);
 
