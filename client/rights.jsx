@@ -16,7 +16,7 @@ class Right extends React.Component {
         {this.props.document.spreader.split('/')[1]}
       </span>
       <ReactTooltip id={this.props.document._id+'/tooltip'}>
-        Right <span style={{ color: getCollection(this.props.document._id).color }}>{this.props.document._id}</span> spreaded from <span style={{ color: getCollection(this.props.document.spreader).color }}>{this.props.document.spreader}</span>
+        Right <span style={{ color: getCollection(this.props.document.ref()).color }}>{this.props.document.ref()}</span> spreaded from <span style={{ color: getCollection(this.props.document.spreader).color }}>{this.props.document.spreader}</span>
       </ReactTooltip>
     </span>;
   }

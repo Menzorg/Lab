@@ -16,59 +16,7 @@ import { factoryExistedGraph, factoryNonExistedGraph } from 'ancient-graph-remov
 import { Documents, Document } from './documents';
 import { Drag, Drop } from './dnd';
 
-removeAncientItem = function(item) {
-  if (!item.launched || !item.launched.length) {
-    Nesting.graph.remove({ target: item.id });
-    Nesting.graph.remove({ source: item.id });
-  }
-};
-
-import '../imports/users';
-import '../imports/items';
-import '../imports/nesting';
-import '../imports/allow';
-import '../imports/allower';
-
-var u0 = Users.insert({});
-var u1 = Users.insert({});
-var u2 = Users.insert({});
-
-var i0 = Items.insert({});
-var i1 = Items.insert({});
-
-var n0 = Nesting.insert({ source: u0, target: i0 });
-var n1 = Nesting.insert({ source: u0, target: i1 });
-
 injectTapEventPlugin();
-
-// var Authorization = createContainer(() => {
-//   return {
-//     user: Users.findOne({ login: { $exists: true }}),
-//   };
-// }, class extends React.Component {
-//   render() {
-//     return (<Drop action="authorization">
-//       <span>{!this.props.user?
-//         <span>users/
-//           <span style={{ color: colors.red700 }}>?</span>
-//         </span>:
-//         <span>
-//           {this.props.user._id}
-//           <span
-//             style={{
-//               color: colors.red700,
-//               cursor: 'pointer'
-//             }}
-//             onClick={() => {
-//               Users.update({ login: { $exists: true } }, { $unset: { login: "" }});
-//             }}
-//           > ✗ </span>
-//         </span>
-//       }
-//       </span>
-//     </Drop>);
-//   }
-// });
 
 class Page extends React.Component {
   render() {

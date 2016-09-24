@@ -1,6 +1,8 @@
 import React from 'react';
 import { DragSource, DropTarget } from 'react-dnd';
 
+import { refs } from '../imports/refs';
+
 var Drag = DragSource('dnd', {
   beginDrag(props) {
     return props;
@@ -9,33 +11,27 @@ var Drag = DragSource('dnd', {
     var drag = props;
     var drop =  monitor.getDropResult();
     if (drop) {
-      if (drop.action == 'authorization') {
-        if (drag.collection == Users) {
-          Users.update({ login: { $exists: true } }, { $unset: { login: "" }}, () => {
-            Users.update({ _id: drag.document._id }, { $set: { login: true }});
-          });
-        }
-      } else if (drop.collection && drop.document) {
+      if (drop.collection && drop.document) {
         if (drop.field) {
           switch (drag.action) {
             case 'nest':
-              drop.collection.graph.update(drop.document._id, {
-                [drop.field]: drag.document._id
+              drop.collection.update(drop.document._id, {
+                $set: { [drop.field]: drag.document.ref() }
               });
               break;
           }
         } else {
           switch (drag.action) {
             case 'nest':
-              Nesting.graph.insert({ source: drop.document._id, target: drag.document._id });
+              Nesting.graph.insert({ source: drop.document.ref(), target: drag.document.ref() });
               break;
             case 'insert':
               switch (drag.collection) {
                 case Items:
-                  Nesting.graph.insert({ source: drop.document._id, target: Items.insert({}) });
+                  Nesting.graph.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
                   break;
                 case Allower:
-                  Nesting.graph.insert({ source: drop.document._id, target: Allower.insert({}) });
+                  Nesting.graph.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({})) });
                   break;
               }
               break;

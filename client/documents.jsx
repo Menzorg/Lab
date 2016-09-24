@@ -7,6 +7,8 @@ import { Rights } from './rights';
 import { Drag, Drop } from './dnd';
 import { getCollection } from '../imports/getCollection';
 
+import { refs } from '../imports/refs';
+
 class Recursion extends React.Component {
   render() {
     return <i style={{ fontSize: '0.75em' }}>recursion</i>
@@ -20,7 +22,7 @@ class _Documents extends React.Component {
       {this.props.documents.map((document) => {
         return (<Document
           collection={this.props.collection}
-          key={document._id}
+          key={document.ref()}
           document={document}
           recursion={this.props.recursion}
           before={this.props.before}
@@ -30,7 +32,11 @@ class _Documents extends React.Component {
   }
 }
 
-var Documents = createContainer(({ collection, query, recursion }) => {
+var Documents = createContainer(({ reference, collection, query, recursion }) => {
+  if (reference) {
+    collection = refs.storage(reference);
+    query = { _id: refs.parse(reference)[1] };
+  }
   return {
     documents: collection.find(query).fetch(),
     collection, recursion
@@ -45,7 +51,7 @@ class Document extends React.Component {
     } else {
       recursionProtection = [];
     }
-    recursionProtection.push(this.props.document._id);
+    recursionProtection.push(this.props.document.ref());
     return {
       recursionProtection: recursionProtection
     };
@@ -59,7 +65,7 @@ class Document extends React.Component {
     children = (<div>
       <Documents
         collection={Nesting}
-        query={{ source: document._id }}
+        query={{ source: document.ref() }}
       />
       {collection == Allower?
         (<span>
@@ -82,8 +88,7 @@ class Document extends React.Component {
         :
         (document.target?
           (<Documents
-            collection={getCollection(document.target)}
-            query={{ _id: document.target }}
+            reference={document.target}
           ></Documents>)
           :
           undefined
@@ -102,13 +107,13 @@ class Document extends React.Component {
         }}
       >✗</span>);
     
-    rights = <Rights target={document._id}/>;
+    rights = <Rights target={document.ref()}/>;
     
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
-    title = <span style={style}>{document._id}</span>;
+    title = <span style={style}>{document.ref()}</span>;
     
-    recursion = this.props.recursion || lodash.includes(this.context.recursionProtection, document._id);
+    recursion = this.props.recursion || lodash.includes(this.context.recursionProtection, document.ref());
     
     if (recursion) {
       children = buttons = rights = undefined;
@@ -149,8 +154,7 @@ class Field extends React.Component {
     children = (<div>
       {document[field]?
         (<Documents
-          collection={getCollection(document[field])}
-          query={{ _id: document[field] }}
+          reference={document[field]}
           recursion={true}
         ></Documents>)
         :undefined
@@ -171,7 +175,7 @@ class Field extends React.Component {
               cursor: 'pointer'
             }}
             onClick={() => {
-              collection.graph.update(document._id, { [field]: undefined });
+              collection.update(document._id, { $unset: { [field]: '' } });
             }}
           > ✗ </span>
         </span>
