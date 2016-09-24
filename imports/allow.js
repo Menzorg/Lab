@@ -95,7 +95,7 @@ if (Meteor.isServer) {
     Allow.queue.insertedSpreadLink(newLink);
   });
   Allow.graph.on('remove', (oldLink, newLink) => {
-    if (oldLink.process.length) Allow.queue.removedSpreadLink(oldLink);
+    if (oldLink.process && oldLink.process.length) Allow.queue.removedSpreadLink(oldLink);
   });
   
   Allow.graph.on('insert', (oldLink, newLink) => {
