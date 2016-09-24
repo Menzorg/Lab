@@ -9,19 +9,19 @@ Allower = new Meteor.Collection('allower');
 
 Allower.color = colors.green600;
 
-var ExistedAllowerGraph = factorySpreaderGraph(ExistedGraph);
-var NonExistedAllowerGraph = NonExistedGraph;
-
-Allower.graph = new ExistedAllowerGraph(Allower, {
-    id: '_id', source: 'source', target: 'target',
-    removed: 'removed', launched: 'launched', process: 'process', guarantor: 'guarantor'
-}, { name: 'allower', constantField: 'source', variableField: 'target' });
-
-Allower.graph.removed = new NonExistedAllowerGraph(
-  Allower.graph.collection, Allower.graph.fields, Allower.graph.config
-);
-
 if (Meteor.isServer) {
+  var ExistedAllowerGraph = factorySpreaderGraph(ExistedGraph);
+  var NonExistedAllowerGraph = NonExistedGraph;
+  
+  Allower.graph = new ExistedAllowerGraph(Allower, {
+      id: '_id', source: 'source', target: 'target',
+      removed: 'removed', launched: 'launched', process: 'process', guarantor: 'guarantor'
+  }, { name: 'allower', constantField: 'source', variableField: 'target' });
+  
+  Allower.graph.removed = new NonExistedAllowerGraph(
+    Allower.graph.collection, Allower.graph.fields, Allower.graph.config
+  );
+
   Allower.graph.on('insert', (oldLink, newLink) => {
     Allow.queue.insertedSpreaderLink(Allower.graph, newLink);
   });

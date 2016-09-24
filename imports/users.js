@@ -29,6 +29,7 @@ if (Meteor.isServer) {
   });
 }
 
+if (Meteor.isServer) {
   Users.graph = new ExistedGraph(Users, {
       id: '_id',
       removed: 'removed', launched: 'launched'
@@ -37,8 +38,7 @@ if (Meteor.isServer) {
   Users.graph.removed = new NonExistedGraph(
     Users.graph.collection, Users.graph.fields, Users.graph.config
   );
-  
-if (Meteor.isServer) {
+    
   Users.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
   Users.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }

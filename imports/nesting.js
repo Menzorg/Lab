@@ -8,19 +8,19 @@ Nesting = new Meteor.Collection('nesting');
 
 Nesting.color = colors.lightBlue800;
 
-var ExistedNestingGraph = factoryPathGraph(ExistedGraph);
-var NonExistedNestingGraph = NonExistedGraph;
-
-Nesting.graph = new ExistedNestingGraph(Nesting, {
-    id: '_id', source: 'source', target: 'target',
-    removed: 'removed', launched: 'launched', process: 'process'
-}, { name: 'nesting', fromFields: ['source'], toFields: ['target', 'id'] });
-
-Nesting.graph.removed = new NonExistedNestingGraph(
-  Nesting.graph.collection, Nesting.graph.fields, Nesting.graph.config
-);
-
 if (Meteor.isServer) {
+  var ExistedNestingGraph = factoryPathGraph(ExistedGraph);
+  var NonExistedNestingGraph = NonExistedGraph;
+  
+  Nesting.graph = new ExistedNestingGraph(Nesting, {
+      id: '_id', source: 'source', target: 'target',
+      removed: 'removed', launched: 'launched', process: 'process'
+  }, { name: 'nesting', fromFields: ['source'], toFields: ['target', 'id'] });
+  
+  Nesting.graph.removed = new NonExistedNestingGraph(
+    Nesting.graph.collection, Nesting.graph.fields, Nesting.graph.config
+  );
+
   Nesting.graph.on('insert', (oldLink, newLink) => {
     Allow.queue.insertedPathLink(Nesting.graph, newLink);
   });

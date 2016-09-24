@@ -13,72 +13,72 @@ Allow = new Meteor.Collection('allow');
 
 Allow.color = colors.lightGreen600;
 
-var ExistedAllowGraph = (() => {
-  var ExistedAllowGraph = factoryRespreadGraph(factorySpreadGraph(ExistedGraph));
-  class CustomExistedSpreadGraph extends ExistedAllowGraph {
-    _spreadingHandler(prevSpreadLink, pathGraph, pathLink, newSpreadLink, context, callback) {
-      if (prevSpreadLink && prevSpreadLink.spreader) {
-        newSpreadLink.spreader = prevSpreadLink.spreader;
-      }
-      
-      
-      // <AppRightsLogic>
-      var allower = refs.get(newSpreadLink.spreader);
-      if (allower && allower.guarantor) {
-        if (!(
-          allower.source == allower.target &&
-          allower.source == allower.guarantor &&
-          getCollection(allower.source) == Users
-        )) {
-          var resolution = Allow.findOne({
-            source: allower.guarantor, target: newSpreadLink.target
-          });
-          if (!resolution) {
-            // return callback(undefined);
-          }
+if (Meteor.isServer) {
+  var ExistedAllowGraph = (() => {
+    var ExistedAllowGraph = factoryRespreadGraph(factorySpreadGraph(ExistedGraph));
+    class CustomExistedSpreadGraph extends ExistedAllowGraph {
+      _spreadingHandler(prevSpreadLink, pathGraph, pathLink, newSpreadLink, context, callback) {
+        if (prevSpreadLink && prevSpreadLink.spreader) {
+          newSpreadLink.spreader = prevSpreadLink.spreader;
         }
-      } else {
-        return callback(undefined);
-      }
-      // </AppRightsLogic>
-      
-      if (pathLink) {
-        Nesting.graph.get(pathLink.id, undefined, (error, pathLink) => {
-          if (!pathLink) callback(undefined);
-          else this.get({
+        
+        
+        // <AppRightsLogic>
+        var allower = refs.get(newSpreadLink.spreader);
+        if (allower && allower.guarantor) {
+          if (!(
+            allower.source == allower.target &&
+            allower.source == allower.guarantor &&
+            getCollection(allower.source) == Users
+          )) {
+            var resolution = Allow.findOne({
+              source: allower.guarantor, target: newSpreadLink.target
+            });
+            if (!resolution) {
+              // return callback(undefined);
+            }
+          }
+        } else {
+          return callback(undefined);
+        }
+        // </AppRightsLogic>
+        
+        if (pathLink) {
+          Nesting.graph.get(pathLink.id, undefined, (error, pathLink) => {
+            if (!pathLink) callback(undefined);
+            else this.get({
+              source: newSpreadLink.source, target: newSpreadLink.target
+            }, undefined, (error, spreadLink) => {
+              if (spreadLink) callback();
+              else this.get(prevSpreadLink.id, undefined, (error, prevSpreadLink) => {
+                callback(prevSpreadLink?newSpreadLink:undefined);
+              });
+            });
+          });
+        } else {
+          this.get({
             source: newSpreadLink.source, target: newSpreadLink.target
           }, undefined, (error, spreadLink) => {
             if (spreadLink) callback();
-            else this.get(prevSpreadLink.id, undefined, (error, prevSpreadLink) => {
-              callback(prevSpreadLink?newSpreadLink:undefined);
-            });
+            else callback(newSpreadLink);
           });
-        });
-      } else {
-        this.get({
-          source: newSpreadLink.source, target: newSpreadLink.target
-        }, undefined, (error, spreadLink) => {
-          if (spreadLink) callback();
-          else callback(newSpreadLink);
-        });
+        }
       }
     }
-  }
-  return CustomExistedSpreadGraph;
-})();
-var NonExistedAllowGraph = factorySpreadGraph(NonExistedGraph);
+    return CustomExistedSpreadGraph;
+  })();
+  var NonExistedAllowGraph = factorySpreadGraph(NonExistedGraph);
 
-Allow.graph = new ExistedAllowGraph(Allow, {
-  id: '_id', source: 'source', target: 'target',
-  removed: 'removed', launched: 'launched', process: 'process', spreader: 'spreader',
-  prev: 'prev', path: 'path', root: 'root'
-}, { name: 'spread', constantField: 'source', variableField: 'target' });
+  Allow.graph = new ExistedAllowGraph(Allow, {
+    id: '_id', source: 'source', target: 'target',
+    removed: 'removed', launched: 'launched', process: 'process', spreader: 'spreader',
+    prev: 'prev', path: 'path', root: 'root'
+  }, { name: 'spread', constantField: 'source', variableField: 'target' });
+  
+  Allow.graph.removed = new NonExistedAllowGraph(
+    Allow.graph.collection, Allow.graph.fields, Allow.graph.config
+  );
 
-Allow.graph.removed = new NonExistedAllowGraph(
-  Allow.graph.collection, Allow.graph.fields, Allow.graph.config
-);
-
-if (Meteor.isServer) {
   Allow.spreading = new GraphSpreading(Allow.graph);
   Allow.spreading.addPathGraph(Nesting.graph);
   

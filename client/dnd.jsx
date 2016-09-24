@@ -23,15 +23,15 @@ var Drag = DragSource('dnd', {
         } else {
           switch (drag.action) {
             case 'nest':
-              Nesting.graph.insert({ source: drop.document.ref(), target: drag.document.ref() });
+              Nesting.insert({ source: drop.document.ref(), target: drag.document.ref() });
               break;
             case 'insert':
               switch (drag.collection) {
                 case Items:
-                  Nesting.graph.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
+                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
                   break;
                 case Allower:
-                  Nesting.graph.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({})) });
+                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({})) });
                   break;
               }
               break;
