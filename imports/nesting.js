@@ -8,13 +8,6 @@ Nesting = new Meteor.Collection('nesting');
 
 Nesting.color = colors.lightBlue800;
 
-// Nesting.counter = 0;
-
-// Nesting.before.insert(function (userId, doc) {
-//   doc._id = 'nesting/'+Nesting.counter;
-//   Nesting.counter++;
-// });
-
 var ExistedNestingGraph = factoryPathGraph(ExistedGraph);
 var NonExistedNestingGraph = NonExistedGraph;
 

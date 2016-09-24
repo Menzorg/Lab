@@ -13,13 +13,6 @@ Allow = new Meteor.Collection('allow');
 
 Allow.color = colors.lightGreen600;
 
-// Allow.counter = 0; 
-
-// Allow.before.insert(function (userId, doc) {
-//   doc._id = 'allow/'+Allow.counter;
-//   Allow.counter++;
-// });
-
 var ExistedAllowGraph = (() => {
   var ExistedAllowGraph = factoryRespreadGraph(factorySpreadGraph(ExistedGraph));
   class CustomExistedSpreadGraph extends ExistedAllowGraph {

@@ -8,13 +8,6 @@ Users = new Meteor.Collection('subjects');
 
 Users.color = colors.grey900;
 
-// Users.counter = 0;
-
-// Users.before.insert(function (userId, doc) {
-//   doc._id = 'subjects/'+Users.counter;
-//   Users.counter++;
-// });
-
 Users.isAllowed = function(sourceId, targetId, callback) {
   var result = !!Allow.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
   if (callback) callback(result);

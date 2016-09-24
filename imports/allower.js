@@ -9,12 +9,6 @@ Allower = new Meteor.Collection('allower');
 
 Allower.color = colors.green600;
 
-// Allower.counter = 0;
-
-// Allower.before.insert(function (userId, doc) {
-//   doc._id = 'allower/'+Allower.counter;
-//   Allower.counter++;
-// });
 var ExistedAllowerGraph = factorySpreaderGraph(ExistedGraph);
 var NonExistedAllowerGraph = NonExistedGraph;
 

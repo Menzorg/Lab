@@ -7,13 +7,6 @@ Items = new Meteor.Collection('items');
 
 Items.color = colors.purple500;
 
-// Items.counter = 0;
-
-// Items.before.insert(function (userId, doc) {
-//   doc._id = 'items/'+Items.counter;
-//   Items.counter++;
-// });
-
 Items.graph = new ExistedGraph(Items, {
     id: '_id',
     removed: 'removed', launched: 'launched'
