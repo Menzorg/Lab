@@ -24,10 +24,10 @@ if (Meteor.isServer) {
   
   Nesting._queue = {};
   Nesting._queue.spread = (newLink) => {
-    Allow.queue.insertedPathLink(Nesting.graph, newLink);
+    Allow.queue.spreadByPath(Nesting.graph, newLink);
   };
   Nesting._queue.unspread = (oldLink) => {
-    Allow.queue.removedPathLink(Nesting.graph, oldLink);
+    Allow.queue.unspreadByPath(Nesting.graph, oldLink);
   };
 
   Nesting.graph.on('insert', (oldLink, newLink) => {

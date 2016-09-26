@@ -26,10 +26,10 @@ if (Meteor.isServer) {
   
   Allower._queue = {};
   Allower._queue.spread = (newLink) => {
-    Allow.queue.insertedSpreaderLink(Allower.graph, newLink);
+    Allow.queue.spreadBySpreader(Allower.graph, newLink);
   };
   Allower._queue.unspread = (oldLink) => {
-    Allow.queue.removedSpreaderLink(Allower.graph, oldLink);
+    Allow.queue.unspreadBySpreader(Allower.graph, oldLink);
   };
 
   Allower.graph.on('insert', (oldLink, newLink) => {

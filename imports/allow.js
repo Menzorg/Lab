@@ -84,8 +84,8 @@ if (Meteor.isServer) {
   Allow.queue = new QueueSpreading(Allow.spreading);
   
   Allow._queue = {};
-  Allow._queue.spread = (newLink) => Allow.queue.insertedSpreadLink(newLink);
-  Allow._queue.unspread = (oldLink) => Allow.queue.removedSpreadLink(oldLink);
+  Allow._queue.spread = (newLink) => Allow.queue.spreadBySpread(newLink);
+  Allow._queue.unspread = (oldLink) => Allow.queue.unspreadBySpread(oldLink);
   Allow._queue.respread = (link) => {
     Allow._queue.respread.insert(link, () => {
       Allow._queue.respread.remove(link);
@@ -108,7 +108,7 @@ if (Meteor.isServer) {
         });
       }, () => {
         if (callback) callback();
-        else Allow.queue.mayBeEndedLaunched(link.id, 'respread');
+        else Allow.queue.removeFromLaunched(link.id, 'respread');
       });
     });
   };
@@ -128,7 +128,7 @@ if (Meteor.isServer) {
       }, () => {
         Allow.spreading.spreadTo(link.target, undefined, undefined, () => {
           if (callback) callback();
-          else Allow.queue.mayBeEndedLaunched(link.id, 'respread');
+          else Allow.queue.removeFromLaunched(link.id, 'respread');
         });
       });
     });
