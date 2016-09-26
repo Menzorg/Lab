@@ -22,8 +22,8 @@ if (Meteor.isServer) {
   Items.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }
 
-if (Meteor.isServer) Meteor.publish('items', () => {
-  return Items.find({ removed: { $exists: false }});
+if (Meteor.isServer) Meteor.publish('items', function() {
+  return Items.find({ removed: { $exists: false }, __allowed: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('items');

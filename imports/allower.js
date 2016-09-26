@@ -52,8 +52,8 @@ if (Meteor.isServer) {
   Allower.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }
 
-if (Meteor.isServer) Meteor.publish('allower', () => {
-  return Allower.find({ removed: { $exists: false }});
+if (Meteor.isServer) Meteor.publish('allower', function() {
+  return Allower.find({ removed: { $exists: false }, __allowed: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('allower');
