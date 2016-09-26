@@ -18,8 +18,13 @@ if (Meteor.isServer) {
     var ExistedRightsGraph = factorySpreadGraph(ExistedGraph);
     class CustomExistedSpreadGraph extends ExistedRightsGraph {
       _spreadingHandler(prevSpreadLink, pathGraph, pathLink, newSpreadLink, context, callback) {
-        if (prevSpreadLink && prevSpreadLink.spreader) {
-          newSpreadLink.spreader = prevSpreadLink.spreader;
+        if (prevSpreadLink) {
+          if (prevSpreadLink.removed) {
+            return callback(undefined);
+          }
+          if (prevSpreadLink.spreader) {
+            newSpreadLink.spreader = prevSpreadLink.spreader;
+          }
         }
         
         // <AppRightssLogic>
@@ -96,7 +101,7 @@ if (Meteor.isServer) {
     var targetCollection = getCollection(oldLink.target);
     if (targetCollection != Users) {
       targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __rightly: oldLink.source } }, () => {
-        Rights.queue.spreadBySpread(oldLink);
+        Rights.queue.unspreadBySpread(oldLink);
       });
     } else Rights.queue.unspreadBySpread(oldLink);
   }

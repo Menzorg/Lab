@@ -3,7 +3,7 @@ import lodash from 'lodash';
 import { createContainer } from 'meteor/react-meteor-data';
 import colors from 'material-ui/styles/colors';
 
-import { Rights } from './rights';
+import { Rights as RightsComponent } from './rights';
 import { Drag, Drop } from './dnd';
 import { getCollection } from '../imports/getCollection';
 
@@ -97,6 +97,17 @@ class _Document extends React.Component {
           undefined
         )
       }
+      {collection == Users?
+        <div>
+          <div style={{ fontSize: '0.75em' }}>(rightly)</div>
+          {this.props.rules.map((rule) => {
+            return <Documents
+              key={rule._id}
+              reference={rule.target}
+            />;
+          })}
+        </div>
+      :undefined}
     </div>);
     
     if (collection != Users) {
@@ -114,7 +125,7 @@ class _Document extends React.Component {
       buttons = (<span> </span>);
     }
     
-    rights = <Rights target={document.ref()}/>;
+    rights = <RightsComponent target={document.ref()}/>;
     
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
@@ -161,7 +172,8 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion }) => {
   return {
     before, collection, document, recursion,
-    rightly: Meteor.userId()?Users.isRightsed(Meteor.user().ref(), document.ref()):false
+    rightly: Meteor.userId()?Users.isRightsed(Meteor.user().ref(), document.ref()):false,
+    rules: collection == Users?Rights.find({ root: { $exists: false }, source: document.ref() }).fetch():[]
   };
 }, _Document);
 

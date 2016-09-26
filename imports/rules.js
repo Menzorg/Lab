@@ -37,10 +37,12 @@ if (Meteor.isServer) {
   });
   
   Rules.graph.on('update', (oldLink, newLink) => {
-    if (lodash.includes(newLink.launched, 'unspread')) {
-      Rules._queue.unspread(newLink);
-    } else if (lodash.includes(newLink.launched, 'spread')) {
-      Rules._queue.spread(newLink);
+    if (newLink.launched.length) {
+      if (newLink.launched[0] == 'unspread') {
+        Rules._queue.unspread(newLink);
+      } else if (newLink.launched[0] == 'spread') {
+        Rules._queue.spread(newLink);
+      }
     }
   });
   
@@ -77,3 +79,8 @@ Rules.allow({
     return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
   }
 })
+
+Rules.after.update(function(...args) {
+  // console.log(...args);
+  // console.trace('UPDATE');
+});

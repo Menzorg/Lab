@@ -35,10 +35,10 @@ if (Meteor.isServer) {
     Nesting._queue.spread(newLink);
   });
   Nesting.graph.on('update', (oldLink, newLink) => {
-    if (oldLink.source != newLink.source || oldLink.target != newLink.target) {
-      Nesting._queue.unspread(newLink);
-    } else {
-      if (newLink.launched.length) {
+    if (newLink.launched.length) {
+      if (newLink.launched[0] == 'unspread') {
+        Nesting._queue.unspread(newLink);
+      } else if (newLink.launched[0] == 'spread') {
         Nesting._queue.spread(newLink);
       }
     }

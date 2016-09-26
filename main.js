@@ -75,33 +75,38 @@ function attachGraphSpreadingSpread(collection) {
 if (Meteor.isServer) {
   attachGraphSpreadingPath(Nesting);
   attachGraphSpreadingSpreader(Rules);
-  attachGraphSpreadingSpread(Rights);
+  // attachGraphSpreadingSpread(Rights);
+  
+function doItPlease() {
+  Rights.find({ launched: 'spread' }).forEach((right) => {
+    Rights._queue.spread(Rights.graph._generateLink(right));
+  });
+  Rights.find({ launched: 'unspread' }).forEach((right) => {
+    Rights._queue.unspread(Rights.graph._generateLink(right));
+  });
+  Rights.find({ launched: 'respread' }).forEach((right) => {
+    Rights._queue.respread(Rights.graph._generateLink(right));
+  });
+  Rules.find({ launched: 'spread' }).forEach((rule) => {
+    Rules._queue.spread(Rules.graph._generateLink(rule));
+  });
+  Rules.find({ launched: 'unspread' }).forEach((rule) => {
+    Rules._queue.unspread(Rules.graph._generateLink(rule));
+  });
+  Nesting.find({ launched: 'spread' }).forEach((nesting) => {
+    Nesting._queue.spread(Nesting.graph._generateLink(nesting));
+  });
+  Nesting.find({ launched: 'unspread' }).forEach((nesting) => {
+    Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
+  });
+};
   
   Meteor.startup(function () {
-    Rights.find({ launched: 'spread' }).forEach((right) => {
-      Rights._queue.spread(Rights.graph._generateLink(right));
-    });
-    Rights.find({ launched: 'unspread' }).forEach((right) => {
-      Rights._queue.unspread(Rights.graph._generateLink(right));
-    });
-    Rights.find({ launched: 'respread' }).forEach((right) => {
-      Rights._queue.respread(Rights.graph._generateLink(right));
-    });
-    Rules.find({ launched: 'spread' }).forEach((rule) => {
-      Rules._queue.spread(Rules.graph._generateLink(rule));
-    });
-    Rules.find({ launched: 'unspread' }).forEach((rule) => {
-      Rules._queue.unspread(Rules.graph._generateLink(rule));
-    });
-    Nesting.find({ launched: 'spread' }).forEach((nesting) => {
-      Nesting._queue.spread(Nesting.graph._generateLink(nesting));
-    });
-    Nesting.find({ launched: 'unspread' }).forEach((nesting) => {
-      Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
-    });
+    doItPlease();
   });
-}
 
+  Meteor.methods({ doItPlease });
+}
 // if (Meteor.isServer) {
 //   var u0 = Users.insert({});
 //   var u1 = Users.insert({});
@@ -119,3 +124,5 @@ if (Meteor.isServer) {
 //     target: Items.findOne(i1).ref()
 //   });
 // }
+
+Error.stackTraceLimit = 25;
