@@ -60,13 +60,13 @@ class Page extends React.Component {
               }}
             >+item</button>
           </Drag>
-          <Drag action="insert" collection={Allower}>
+          <Drag action="insert" collection={Rules}>
             <button
               style={{
-                backgroundColor: Allower.color, color: 'white',
+                backgroundColor: Rules.color, color: 'white',
                 marginLeft: 0
               }}
-            >+allower</button>
+            >+rule</button>
           </Drag>
           <Authorization/>
         </div>

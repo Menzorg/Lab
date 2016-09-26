@@ -8,12 +8,12 @@ Users = Meteor.users;
 
 Users.color = colors.grey900;
 
-Users.isAllowed = function(sourceId, targetId, callback) {
+Users.isRightsed = function(sourceId, targetId, callback) {
   var result, storage;
   if (!sourceId || !targetId) return false;
   storage = refs.storage(sourceId);
   if (storage == Users && sourceId == targetId) result = true;
-  else result = !!Allow.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
+  else result = !!Rights.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
   if (callback) callback(result);
   return result;
 };
@@ -21,14 +21,14 @@ Users.isAllowed = function(sourceId, targetId, callback) {
 if (Meteor.isServer) {
   Users.after.insert(function (userId, doc) {
     doc = this.transform(doc);
-    var allowerId = Allower.insert({
+    var ruleId = Rules.insert({
       guarantor: doc.ref(),
       source: doc.ref(),
       target: doc.ref()
     });
     Nesting.graph.insert({
       source: doc.ref(),
-      target: refs.generate(Allower._ref, allowerId)
+      target: refs.generate(Rules._ref, ruleId)
     });
   });
 }

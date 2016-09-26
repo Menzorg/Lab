@@ -11,8 +11,8 @@ import './imports/refs';
 import './imports/users';
 import './imports/items';
 import './imports/nesting';
-import './imports/allow';
-import './imports/allower';
+import './imports/rights';
+import './imports/rules';
 
 function attachGraphSpreadingPath(collection) {
   collection.before.insert((userId, doc) => {
@@ -74,24 +74,24 @@ function attachGraphSpreadingSpread(collection) {
 
 if (Meteor.isServer) {
   attachGraphSpreadingPath(Nesting);
-  attachGraphSpreadingSpreader(Allower);
-  attachGraphSpreadingSpread(Allow);
+  attachGraphSpreadingSpreader(Rules);
+  attachGraphSpreadingSpread(Rights);
   
   Meteor.startup(function () {
-    Allow.find({ launched: 'spread' }).forEach((allow) => {
-      Allow._queue.spread(Allow.graph._generateLink(allow));
+    Rights.find({ launched: 'spread' }).forEach((right) => {
+      Rights._queue.spread(Rights.graph._generateLink(right));
     });
-    Allow.find({ launched: 'unspread' }).forEach((allow) => {
-      Allow._queue.unspread(Allow.graph._generateLink(allow));
+    Rights.find({ launched: 'unspread' }).forEach((right) => {
+      Rights._queue.unspread(Rights.graph._generateLink(right));
     });
-    Allow.find({ launched: 'respread' }).forEach((allow) => {
-      Allow._queue.respread(Allow.graph._generateLink(allow));
+    Rights.find({ launched: 'respread' }).forEach((right) => {
+      Rights._queue.respread(Rights.graph._generateLink(right));
     });
-    Allower.find({ launched: 'spread' }).forEach((allower) => {
-      Allower._queue.spread(Allower.graph._generateLink(allower));
+    Rules.find({ launched: 'spread' }).forEach((rule) => {
+      Rules._queue.spread(Rules.graph._generateLink(rule));
     });
-    Allower.find({ launched: 'unspread' }).forEach((allower) => {
-      Allower._queue.unspread(Allower.graph._generateLink(allower));
+    Rules.find({ launched: 'unspread' }).forEach((rule) => {
+      Rules._queue.unspread(Rules.graph._generateLink(rule));
     });
     Nesting.find({ launched: 'spread' }).forEach((nesting) => {
       Nesting._queue.spread(Nesting.graph._generateLink(nesting));

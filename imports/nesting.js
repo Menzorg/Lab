@@ -25,10 +25,10 @@ if (Meteor.isServer) {
   
   Nesting._queue = {};
   Nesting._queue.spread = (newLink) => {
-    Allow.queue.spreadByPath(Nesting.graph, newLink);
+    Rights.queue.spreadByPath(Nesting.graph, newLink);
   };
   Nesting._queue.unspread = (oldLink) => {
-    Allow.queue.unspreadByPath(Nesting.graph, oldLink);
+    Rights.queue.unspreadByPath(Nesting.graph, oldLink);
   };
 
   Nesting.graph.on('insert', (oldLink, newLink) => {
@@ -60,19 +60,19 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('nesting', function() {
-  return Nesting.find({ removed: { $exists: false }, __allowed: refs.generate(Users._ref, this.userId) });
+  return Nesting.find({ removed: { $exists: false }, __rightly: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('nesting');
 
 Nesting.allow({
   insert(userId, doc) {
-    return doc.source?Users.isAllowed(refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source?Users.isRightsed(refs.generate(Users._ref, userId), doc.source):false;
   },
   update(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
   }
 })

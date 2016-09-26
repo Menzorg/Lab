@@ -3,7 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import ReactTooltip from 'react-tooltip'
 import { getCollection } from '../imports/getCollection';
 
-class Right extends React.Component {
+class RightComponent extends React.Component {
   render() {
     var
       style = {
@@ -27,19 +27,19 @@ class _Rights extends React.Component {
     return (<span style={{
       fontSize: '0.75em'
     }}>
-      {this.props.allow.map((document) => {
+      {this.props.right.map((document) => {
         return (<span key={document._id}>
-          <Right collection={Allow} document={document}/>&nbsp;
+          <RightComponent collection={Rights} document={document}/>&nbsp;
         </span>);
       })}
     </span>);
   }
 }
 
-var Rights = createContainer(({ target }) => {
+var RightsComponent = createContainer(({ target }) => {
   return {
-    allow: Allow.find({ removed: { $exists: false }, target: target }).fetch()
+    right: Rights.find({ removed: { $exists: false }, target: target }).fetch()
   };
 }, _Rights);
 
-export { Rights, Right };
+export { RightsComponent as Rights, RightComponent as Right };

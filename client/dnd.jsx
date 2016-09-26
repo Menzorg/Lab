@@ -34,8 +34,8 @@ var Drag = DragSource('dnd', {
                 case Items:
                   Nesting.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
                   break;
-                case Allower:
-                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Allower._ref, Allower.insert({
+                case Rules:
+                  Nesting.insert({ source: drop.document.ref(), target: refs.generate(Rules._ref, Rules.insert({
                     guarantor: Meteor.userId()?Meteor.user().ref():undefined,
                     source: Meteor.userId()?Meteor.user().ref():undefined,
                     target: Meteor.userId()?Meteor.user().ref():undefined

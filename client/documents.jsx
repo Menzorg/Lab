@@ -57,7 +57,7 @@ class _Document extends React.Component {
     };
   }
   render() {
-    var { collection, document, allowed } = this.props;
+    var { collection, document, rightly } = this.props;
     var color, children, buttons, rights, title, content, style, recursion;
     
     color = this.props.collection.color;
@@ -67,25 +67,25 @@ class _Document extends React.Component {
         collection={Nesting}
         query={{ source: document.ref() }}
       />
-      {collection == Allower?
+      {collection == Rules?
         (<span>
           <Field
             collection={collection}
             document={document}
             field='source'
-            allowed={allowed}
+            rightly={rightly}
           >(source)</Field>
           <Field
             collection={collection}
             document={document}
             field='target'
-            allowed={allowed}
+            rightly={rightly}
           >(target)</Field>
           <Field
             collection={collection}
             document={document}
             field='guarantor'
-            allowed={allowed}
+            rightly={rightly}
           >(guarantor)</Field>
         </span>)
         :
@@ -102,7 +102,7 @@ class _Document extends React.Component {
     if (collection != Users) {
       buttons = (<span
           style={{
-            color: allowed?colors.red700:colors.grey400,
+            color: rightly?colors.red700:colors.grey400,
             marginLeft: 0, cursor: 'pointer'
           }}
           onClick={() => {
@@ -119,7 +119,7 @@ class _Document extends React.Component {
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
     
-    if (!allowed) {
+    if (!rightly) {
       style.fontStyle = 'italic';
     }
     
@@ -161,13 +161,13 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion }) => {
   return {
     before, collection, document, recursion,
-    allowed: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false
+    rightly: Meteor.userId()?Users.isRightsed(Meteor.user().ref(), document.ref()):false
   };
 }, _Document);
 
 class Field extends React.Component {
   render() {
-    var { collection, document, field, allowed } = this.props;
+    var { collection, document, field, rightly } = this.props;
     var children;
     
     children = (<div>
@@ -191,7 +191,7 @@ class Field extends React.Component {
           {collection != Users?
             (<span
               style={{
-                color: allowed?colors.red700:colors.grey400,
+                color: rightly?colors.red700:colors.grey400,
                 cursor: 'pointer'
               }}
               onClick={() => {
