@@ -23,9 +23,17 @@ if (Meteor.isServer) {
   Allower.graph.removed = new NonExistedAllowerGraph(
     Allower.graph.collection, Allower.graph.fields, Allower.graph.config
   );
+  
+  Allower._queue = {};
+  Allower._queue.spread = (newLink) => {
+    Allow.queue.insertedSpreaderLink(Allower.graph, newLink);
+  };
+  Allower._queue.unspread = (oldLink) => {
+    Allow.queue.removedSpreaderLink(Allower.graph, oldLink);
+  };
 
   Allower.graph.on('insert', (oldLink, newLink) => {
-    Allow.queue.insertedSpreaderLink(Allower.graph, newLink);
+    Allower._queue.spread(newLink);
   });
   
   Allower.graph.on('update', (oldLink, newLink) => {
@@ -34,16 +42,16 @@ if (Meteor.isServer) {
       oldLink.target != newLink.target ||
       oldLink.guarantor != newLink.guarantor
     ) {
-      Allow.queue.updatedSourceOrTargetSpreaderLink(Allower.graph, newLink);
+      Allower._queue.spread(newLink);
     } else {
       if (newLink.launched.length) {
-        Allow.queue.updatedLaunchedUnspreadSpreaderLink(Allower.graph, newLink);
+        Allower._queue.unspread(newLink);
       }
     }
   });
   
   Allower.graph.on('remove', (oldLink, newLink) => {
-    Allow.queue.removedSpreaderLink(Allower.graph, oldLink);
+    Allower._queue.unspread(oldLink);
   });
   
   Allower.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));

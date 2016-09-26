@@ -15,7 +15,7 @@ Allow.color = colors.lightGreen600;
 
 if (Meteor.isServer) {
   var ExistedAllowGraph = (() => {
-    var ExistedAllowGraph = factoryRespreadGraph(factorySpreadGraph(ExistedGraph));
+    var ExistedAllowGraph = factorySpreadGraph(ExistedGraph);
     class CustomExistedSpreadGraph extends ExistedAllowGraph {
       _spreadingHandler(prevSpreadLink, pathGraph, pathLink, newSpreadLink, context, callback) {
         if (prevSpreadLink && prevSpreadLink.spreader) {
@@ -83,36 +83,40 @@ if (Meteor.isServer) {
   
   Allow.queue = new QueueSpreading(Allow.spreading);
   
-  Allow.graph.on('insert', (oldLink, newLink) => {
-    Allow.queue.insertedSpreadLink(newLink);
-  });
-  Allow.graph.on('remove', (oldLink, newLink) => {
-    if (oldLink.process && oldLink.process.length) Allow.queue.removedSpreadLink(oldLink);
-  });
+  Allow._queue = {};
+  Allow._queue.spread = (newLink) => Allow.queue.insertedSpreadLink(newLink);
+  Allow._queue.unspread = (oldLink) => Allow.queue.removedSpreadLink(oldLink);
+  Allow._queue.respread = (link) => {
+    Allow._queue.respread.insert(link, () => {
+      Allow._queue.respread.remove(link);
+    });
+  };
   
-  Allow.graph.on('insert', (oldLink, newLink) => {
-    Allower.graph.fetch({ target: newLink.target }, undefined, (error, allowers) => {
+  Allow._queue.respread.insert = (link, callback) => {
+    Allower.graph.fetch({ target: link.target }, undefined, (error, allowers) => {
       async.each(allowers, (allower, next) => {
-        Users.isAllowed(allower.guarantor, newLink.target, (allowed) => {
+        Users.isAllowed(allower.guarantor, link.target, (allowed) => {
           if (allowed) {
             Allow.spreading.spreadNewSpreadLink({
               [Allow.spreading.spreadGraph.constantField]: allower[Allower.graph.constantField],
               [Allow.spreading.spreadGraph.variableField]: allower[Allower.graph.variableField],
               spreader: allower.id
-            }, { process: newLink.id }, () => {
+            }, { process: link.id }, () => {
               next();
             });
           }
         });
       }, () => {
-        Allow.graph.removed.update(newLink.id, { launched: { remove: 'respread' } });
+        if (callback) callback();
+        else Allow.queue.mayBeEndedLaunched(link.id, 'respread');
       });
     });
-  });
-  Allow.graph.removed.on('insert', (oldLink, newLink) => {
-    Allower.graph.fetch({ target: newLink.target }, undefined, (error, allowers) => {
+  };
+  
+  Allow._queue.respread.remove = (link, callback) => {
+    Allower.graph.fetch({ target: link.target }, undefined, (error, allowers) => {
       async.each(allowers, (allower, next) => {
-        Users.isAllowed(allower.guarantor, newLink.target, (allowed) => {
+        Users.isAllowed(allower.guarantor, link.target, (allowed) => {
           if (!allowed) {
             Allow.graph.remove({
               spreader: allower.id
@@ -122,11 +126,27 @@ if (Meteor.isServer) {
           }
         });
       }, () => {
-        Allow.spreading.spreadTo(newLink.target, undefined, undefined, () => {
-          Allow.graph.removed.update(newLink.id, { launched: { remove: 'respread' } });
+        Allow.spreading.spreadTo(link.target, undefined, undefined, () => {
+          if (callback) callback();
+          else Allow.queue.mayBeEndedLaunched(link.id, 'respread');
         });
       });
     });
+  };
+  
+  Allow.graph.on('insert', (oldLink, newLink) => {
+    Allow._queue.spread(newLink)
+  });
+  
+  Allow.graph.on('remove', (oldLink, newLink) => {
+    if (oldLink.process && oldLink.process.length) Allow._queue.unspread(oldLink);
+  });
+  
+  Allow.graph.on('insert', (oldLink, newLink) => {
+    Allow._queue.respread.insert(newLink);
+  });
+  Allow.graph.removed.on('insert', (oldLink, newLink) => {
+    Allow._queue.respread.remove(newLink);
   });
 }
 

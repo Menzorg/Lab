@@ -21,21 +21,29 @@ if (Meteor.isServer) {
   Nesting.graph.removed = new NonExistedNestingGraph(
     Nesting.graph.collection, Nesting.graph.fields, Nesting.graph.config
   );
+  
+  Nesting._queue = {};
+  Nesting._queue.spread = (newLink) => {
+    Allow.queue.insertedPathLink(Nesting.graph, newLink);
+  };
+  Nesting._queue.unspread = (oldLink) => {
+    Allow.queue.removedPathLink(Nesting.graph, oldLink);
+  };
 
   Nesting.graph.on('insert', (oldLink, newLink) => {
-    Allow.queue.insertedPathLink(Nesting.graph, newLink);
+    Nesting._queue.spread(newLink);
   });
   Nesting.graph.on('update', (oldLink, newLink) => {
     if (oldLink.source != newLink.source || oldLink.target != newLink.target) {
-      Allow.queue.updatedSourceOrTargetPathLink(Nesting.graph, newLink);
+      Nesting._queue.unspread(newLink);
     } else {
       if (newLink.launched.length) {
-        Allow.queue.updatedLaunchedUnspreadPathLink(Nesting.graph, newLink);
+        Nesting._queue.spread(newLink);
       }
     }
   });
   Nesting.graph.on('remove', (oldLink, newLink) => {
-    Allow.queue.removedPathLink(Nesting.graph, oldLink);
+    Nesting._queue.unspread(oldLink);
   });
   
   Nesting.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
