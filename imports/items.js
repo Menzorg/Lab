@@ -33,9 +33,9 @@ Items.allow({
     return true;
   },
   update(userId, doc) {
-    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 })

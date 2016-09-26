@@ -8,7 +8,7 @@ Users = Meteor.users;
 
 Users.color = colors.grey900;
 
-Users.isRightsed = function(sourceId, targetId, callback) {
+Users.isAllowed = function(sourceId, targetId, callback) {
   var result, storage;
   if (!sourceId || !targetId) return false;
   storage = refs.storage(sourceId);

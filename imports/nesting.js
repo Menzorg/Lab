@@ -51,12 +51,12 @@ if (Meteor.isClient) Meteor.subscribe('nesting');
 
 Nesting.allow({
   insert(userId, doc) {
-    return doc.source?Users.isRightsed(refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source?Users.isAllowed(refs.generate(Users._ref, userId), doc.source):false;
   },
   update(userId, doc) {
-    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 })

@@ -54,10 +54,10 @@ Rules.allow({
       if (guarantor && guarantor != refs.generate(Users._ref, userId)) return false;
     }
     return (
-      Users.isRightsed(refs.generate(Users._ref, userId), doc.ref())
+      Users.isAllowed(refs.generate(Users._ref, userId), doc.ref())
     );
   },
   remove(userId, doc) {
-    return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
+    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 });

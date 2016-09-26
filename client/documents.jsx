@@ -172,7 +172,7 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion }) => {
   return {
     before, collection, document, recursion,
-    rightly: Meteor.userId()?Users.isRightsed(Meteor.user().ref(), document.ref()):false,
+    rightly: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false,
     rules: collection == Users?Rights.find({ root: { $exists: false }, source: document.ref() }).fetch():[]
   };
 }, _Document);
