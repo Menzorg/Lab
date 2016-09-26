@@ -37,16 +37,10 @@ if (Meteor.isServer) {
   });
   
   Allower.graph.on('update', (oldLink, newLink) => {
-    if (
-      oldLink.source != newLink.source ||
-      oldLink.target != newLink.target ||
-      oldLink.guarantor != newLink.guarantor
-    ) {
+    if (lodash.includes(newLink.launched, 'unspread')) {
+      Allower._queue.unspread(newLink);
+    } else if (lodash.includes(newLink.launched, 'spread')) {
       Allower._queue.spread(newLink);
-    } else {
-      if (newLink.launched.length) {
-        Allower._queue.unspread(newLink);
-      }
     }
   });
   
@@ -73,12 +67,8 @@ Allower.allow({
     var guarantor;
     if (lodash.includes(fields, 'guarantor')) {
       guarantor = modifier.guarantor?modifier.guarantor:(modifier.$set?modifier.$set.guarantor:undefined);
-      if (guarantor != refs.generate(Users._ref, userId)) return false;
+      if (guarantor && guarantor != refs.generate(Users._ref, userId)) return false;
     }
-    if (lodash.includes(fields, 'target')) {
-      if (!Users.isAllowed(refs.generate(Users._ref, userId), doc.target)) return false;
-    }
-    
     return (
       Users.isAllowed(refs.generate(Users._ref, userId), doc.ref())
     );

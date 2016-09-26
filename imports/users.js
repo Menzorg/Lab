@@ -10,6 +10,7 @@ Users.color = colors.grey900;
 
 Users.isAllowed = function(sourceId, targetId, callback) {
   var result, storage;
+  if (!sourceId || !targetId) return false;
   storage = refs.storage(sourceId);
   if (storage == Users && sourceId == targetId) result = true;
   else result = !!Allow.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });

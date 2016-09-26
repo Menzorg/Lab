@@ -36,19 +36,26 @@ function attachGraphSpreadingSpreader(collection) {
     doc.launched = ['spread'];
   });
   collection.before.update((userId, doc, fieldNames, modifier, options) => {
-    if (!lodash.includes(fieldNames, 'launched')) {
+    var source, target, guarantor;
+    if (!lodash.includes(fieldNames, 'launched') && !doc.removed) {
       if (lodash.includes(fieldNames, 'removed')) {
         if (!modifier.$addToSet) modifier.$addToSet = {};
         modifier.$addToSet.launched = 'unspread';
-      } else if (!doc.removed) {
-        if (!modifier.$addToSet) modifier.$addToSet = {};
-        modifier.$addToSet.launched = { $each: ['unspread', 'spread'] };
+      } else {
+        if (
+          lodash.includes(fieldNames, 'source') ||
+          lodash.includes(fieldNames, 'target') ||
+          lodash.includes(fieldNames, 'guarantor')
+        ) {
+          if (!modifier.$addToSet) modifier.$addToSet = {};
+          modifier.$addToSet.launched = { $each: ['unspread', 'spread'] };
+        }
       }
     }
   });
 };
 
-function attachGraphSpreadingRespreader(collection) {
+function attachGraphSpreadingSpread(collection) {
   collection.before.insert((userId, doc) => {
     doc.launched = ['respread'];
   });
@@ -68,7 +75,7 @@ function attachGraphSpreadingRespreader(collection) {
 if (Meteor.isServer) {
   attachGraphSpreadingPath(Nesting);
   attachGraphSpreadingSpreader(Allower);
-  attachGraphSpreadingRespreader(Allow);
+  attachGraphSpreadingSpread(Allow);
   
   Meteor.startup(function () {
     Allow.find({ launched: 'spread' }).forEach((allow) => {

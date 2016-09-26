@@ -84,8 +84,22 @@ if (Meteor.isServer) {
   Allow.queue = new QueueSpreading(Allow.spreading);
   
   Allow._queue = {};
-  Allow._queue.spread = (newLink) => Allow.queue.spreadBySpread(newLink);
-  Allow._queue.unspread = (oldLink) => Allow.queue.unspreadBySpread(oldLink);
+  Allow._queue.spread = (newLink) => {
+    var targetCollection = getCollection(newLink.target);
+    if (targetCollection != Users) {
+      targetCollection.update(refs.parse(newLink.target)[1], { $addToSet: { __allowed: newLink.source } }, () => {
+        Allow.queue.spreadBySpread(newLink);
+      });
+    } else Allow.queue.spreadBySpread(newLink);
+  }
+  Allow._queue.unspread = (oldLink) => {
+    var targetCollection = getCollection(oldLink.target);
+    if (targetCollection != Users) {
+      targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __allowed: oldLink.source } }, () => {
+        Allow.queue.spreadBySpread(oldLink);
+      });
+    } else Allow.queue.unspreadBySpread(oldLink);
+  }
   Allow._queue.respread = (link) => {
     Allow._queue.respread.insert(link, () => {
       Allow._queue.respread.remove(link);
