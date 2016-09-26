@@ -19,9 +19,6 @@ if (Meteor.isServer) {
     class CustomExistedSpreadGraph extends ExistedRightsGraph {
       _spreadingHandler(prevSpreadLink, pathGraph, pathLink, newSpreadLink, context, callback) {
         if (prevSpreadLink) {
-          if (prevSpreadLink.removed) {
-            return callback(undefined);
-          }
           if (prevSpreadLink.spreader) {
             newSpreadLink.spreader = prevSpreadLink.spreader;
           }
@@ -33,13 +30,11 @@ if (Meteor.isServer) {
           if (!(
             rule.source == rule.target &&
             rule.source == rule.guarantor &&
-            getCollection(rule.source) == Users
+            rule.source && getCollection(rule.source) == Users
           )) {
-            var resolution = Rights.findOne({
-              source: rule.guarantor, target: newSpreadLink.target
-            });
+            var resolution = Users.isRightsed(rule.guarantor, newSpreadLink.target);
             if (!resolution) {
-              // return callback(undefined);
+              return callback(undefined);
             }
           }
         } else {
@@ -60,10 +55,10 @@ if (Meteor.isServer) {
             });
           });
         } else {
-          this.get({
+          this.count({
             source: newSpreadLink.source, target: newSpreadLink.target
-          }, undefined, (error, spreadLink) => {
-            if (spreadLink) callback();
+          }, undefined, (error, count) => {
+            if (count) callback();
             else callback(newSpreadLink);
           });
         }

@@ -78,9 +78,4 @@ Rules.allow({
   remove(userId, doc) {
     return Users.isRightsed(refs.generate(Users._ref, userId), doc.ref());
   }
-})
-
-Rules.after.update(function(...args) {
-  // console.log(...args);
-  // console.trace('UPDATE');
 });
