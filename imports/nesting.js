@@ -30,22 +30,6 @@ if (Meteor.isServer) {
   Nesting._queue.unspread = (oldLink) => {
     Rights.queue.unspreadByPath(Nesting.graph, oldLink);
   };
-
-  Nesting.graph.on('insert', (oldLink, newLink) => {
-    Nesting._queue.spread(newLink);
-  });
-  Nesting.graph.on('update', (oldLink, newLink) => {
-    if (newLink.launched.length) {
-      if (newLink.launched[0] == 'unspread') {
-        Nesting._queue.unspread(newLink);
-      } else if (newLink.launched[0] == 'spread') {
-        Nesting._queue.spread(newLink);
-      }
-    }
-  });
-  Nesting.graph.on('remove', (oldLink, newLink) => {
-    Nesting._queue.unspread(oldLink);
-  });
   
   Nesting.graph.removed.on('insert', (oldLink, newLink) => {
     removeAncientItem(newLink);

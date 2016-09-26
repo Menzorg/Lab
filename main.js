@@ -7,7 +7,7 @@ removeAncientItem = function(item) {
   }
 };
 
-import './imports/refs';
+import { refs } from './imports/refs';
 import './imports/users';
 import './imports/items';
 import './imports/nesting';
@@ -75,54 +75,34 @@ function attachGraphSpreadingSpread(collection) {
 if (Meteor.isServer) {
   attachGraphSpreadingPath(Nesting);
   attachGraphSpreadingSpreader(Rules);
-  // attachGraphSpreadingSpread(Rights);
-  
-function doItPlease() {
-  Rights.find({ launched: 'spread' }).forEach((right) => {
-    Rights._queue.spread(Rights.graph._generateLink(right));
-  });
-  Rights.find({ launched: 'unspread' }).forEach((right) => {
-    Rights._queue.unspread(Rights.graph._generateLink(right));
-  });
-  Rights.find({ launched: 'respread' }).forEach((right) => {
-    Rights._queue.respread(Rights.graph._generateLink(right));
-  });
-  Rules.find({ launched: 'spread' }).forEach((rule) => {
-    Rules._queue.spread(Rules.graph._generateLink(rule));
-  });
-  Rules.find({ launched: 'unspread' }).forEach((rule) => {
-    Rules._queue.unspread(Rules.graph._generateLink(rule));
-  });
-  Nesting.find({ launched: 'spread' }).forEach((nesting) => {
-    Nesting._queue.spread(Nesting.graph._generateLink(nesting));
-  });
-  Nesting.find({ launched: 'unspread' }).forEach((nesting) => {
-    Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
-  });
-};
+  attachGraphSpreadingSpread(Rights);
   
   Meteor.startup(function () {
-    doItPlease();
+    Rights.find({ $nor: [{ process: { $size: 0 } }] }).observe({ added(right) {
+      var launcher = refs.get(right.process[0]);
+      if (launcher.launched) {
+        if (lodash.includes(launcher.launched, 'unspread')) {
+          Rights._queue.unspread(Rights.graph._generateLink(right));
+        } else if (lodash.includes(launcher.launched, 'spread')) {
+          Rights._queue.spread(Rights.graph._generateLink(right));
+        }
+      }
+    } });
+    
+    Rules.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({added(rule) {
+      Rules._queue.spread(Rules.graph._generateLink(rule));
+    }});
+    Rules.find({ launched: 'unspread' }).observe({ added(rule) {
+      Rules._queue.unspread(Rules.graph._generateLink(rule));
+    } });
+    
+    Nesting.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(nesting) {
+      Nesting._queue.spread(Nesting.graph._generateLink(nesting));
+    } });
+    Nesting.find({ launched: 'unspread' }).observe({ added(nesting) {
+      Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
+    } });
   });
-
-  Meteor.methods({ doItPlease });
 }
-// if (Meteor.isServer) {
-//   var u0 = Users.insert({});
-//   var u1 = Users.insert({});
-//   var u2 = Users.insert({});
-  
-//   var i0 = Items.insert({});
-//   var i1 = Items.insert({});
-  
-//   var n0 = Nesting.insert({
-//     source: Users.findOne(u0).ref(),
-//     target: Items.findOne(i0).ref()
-//   });
-//   var n1 = Nesting.insert({
-//     source: Users.findOne(u0).ref(),
-//     target: Items.findOne(i1).ref()
-//   });
-// }
 
 Error.stackTraceLimit = 25;

@@ -147,21 +147,6 @@ if (Meteor.isServer) {
       });
     });
   };
-  
-  Rights.graph.on('insert', (oldLink, newLink) => {
-    Rights._queue.spread(newLink)
-  });
-  
-  Rights.graph.on('remove', (oldLink, newLink) => {
-    if (oldLink.process && oldLink.process.length) Rights._queue.unspread(oldLink);
-  });
-  
-  Rights.graph.on('insert', (oldLink, newLink) => {
-    Rights._queue.respread.insert(newLink);
-  });
-  Rights.graph.removed.on('insert', (oldLink, newLink) => {
-    Rights._queue.respread.remove(newLink);
-  });
 }
 
 if (Meteor.isServer) Meteor.publish('rights', () => {

@@ -32,24 +32,6 @@ if (Meteor.isServer) {
     Rights.queue.unspreadBySpreader(Rules.graph, oldLink);
   };
 
-  Rules.graph.on('insert', (oldLink, newLink) => {
-    Rules._queue.spread(newLink);
-  });
-  
-  Rules.graph.on('update', (oldLink, newLink) => {
-    if (newLink.launched.length) {
-      if (newLink.launched[0] == 'unspread') {
-        Rules._queue.unspread(newLink);
-      } else if (newLink.launched[0] == 'spread') {
-        Rules._queue.spread(newLink);
-      }
-    }
-  });
-  
-  Rules.graph.on('remove', (oldLink, newLink) => {
-    Rules._queue.unspread(oldLink);
-  });
-  
   Rules.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
   Rules.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
 }
