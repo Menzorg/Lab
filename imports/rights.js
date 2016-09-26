@@ -46,7 +46,8 @@ if (Meteor.isServer) {
           Nesting.graph.get(pathLink.id, undefined, (error, pathLink) => {
             if (!pathLink) callback(undefined);
             else this.get({
-              source: newSpreadLink.source, target: newSpreadLink.target
+              source: newSpreadLink.source, target: newSpreadLink.target,
+              spreader: newSpreadLink.spreader
             }, undefined, (error, spreadLink) => {
               if (spreadLink) callback();
               else this.get(prevSpreadLink.id, undefined, (error, prevSpreadLink) => {
@@ -56,7 +57,8 @@ if (Meteor.isServer) {
           });
         } else {
           this.count({
-            source: newSpreadLink.source, target: newSpreadLink.target
+            source: newSpreadLink.source, target: newSpreadLink.target,
+            spreader: newSpreadLink.spreader
           }, undefined, (error, count) => {
             if (count) callback();
             else callback(newSpreadLink);
@@ -95,9 +97,12 @@ if (Meteor.isServer) {
   Rights._queue.unspread = (oldLink) => {
     var targetCollection = getCollection(oldLink.target);
     if (targetCollection != Users) {
-      targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __rightly: oldLink.source } }, () => {
-        Rights.queue.unspreadBySpread(oldLink);
-      });
+      var count = Rights.find({ _id: { $not: { $eq: oldLink._id } }, removed: { $exists: false }, source: oldLink.source, target: oldLink.target }).count();
+      if (!count) {
+        targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __rightly: oldLink.source } }, (...atgs) => {
+          Rights.queue.unspreadBySpread(oldLink);
+        });
+      } else Rights.queue.unspreadBySpread(oldLink);
     } else Rights.queue.unspreadBySpread(oldLink);
   }
   Rights._queue.respread = (link) => {
