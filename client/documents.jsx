@@ -99,7 +99,7 @@ class _Document extends React.Component {
       }
       {collection == Users?
         <div>
-          <div style={{ fontSize: '0.75em' }}>(rightly)</div>
+          <div style={{ fontSize: '0.75em' }}>(shared)</div>
           {this.props.rules.map((rule) => {
             return <Documents
               key={rule._id}
