@@ -36,9 +36,9 @@ var Drag = DragSource('dnd', {
                   break;
                 case Rules:
                   Nesting.insert({ source: drop.document.ref(), target: refs.generate(Rules._ref, Rules.insert({
-                    guarantor: Meteor.userId()?Meteor.user().ref():undefined,
-                    source: Meteor.userId()?Meteor.user().ref():undefined,
-                    target: Meteor.userId()?Meteor.user().ref():undefined
+                    guarantor: drop.document.ref(),
+                    source: drop.document.ref(),
+                    target: drop.document.ref()
                   })) });
                   break;
               }
