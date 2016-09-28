@@ -2,6 +2,8 @@ import React from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import ReactTooltip from 'react-tooltip'
 import { getCollection } from '../imports/getCollection';
+import RulePopover from './popover';
+import FontIcon from 'material-ui/FontIcon';
 
 class RightComponent extends React.Component {
   render() {

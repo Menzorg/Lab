@@ -16,6 +16,12 @@ import { factoryExistedGraph, factoryNonExistedGraph } from 'ancient-graph-remov
 import { Documents, Document } from './documents';
 import { Drag, Drop } from './dnd';
 
+import AppBar from 'material-ui/AppBar';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import FlatButton from 'material-ui/FlatButton';
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+
+
 injectTapEventPlugin();
 
 var Authorization = createContainer(() => {
@@ -49,9 +55,45 @@ var Authorization = createContainer(() => {
 
 class Page extends React.Component {
   render() {
-    return (
+    var style;
+    return (<MuiThemeProvider>
       <div>
         <div>
+          <AppBar
+            style={{ backgroundColor: colors.white }}
+            iconElementLeft={<span></span>}
+            iconStyleLeft={{ color: colors.grey900 }}
+            title={<div style={{ fontSize: '0.7em', paddingTop: '20px' }}>
+              <RadioButtonGroup 
+                name="shipSpeed"
+                defaultSelected="not_light"
+              >
+                <RadioButton
+                  value="0"
+                  label="Nesting"
+                  style={{ float: "left", width: "auto", margin: '0 12px' }}
+                />
+                <RadioButton
+                  value="1"
+                  label="Joining"
+                  style={{ float: "left", width: "auto", margin: '0 12px' }}
+                />
+                <RadioButton
+                  value="2"
+                  label="Commenting"
+                  disabled={true}
+                  style={{ float: "left", width: "auto", margin: '0 12px' }}
+                />
+                <RadioButton
+                  value="3"
+                  label="Aliasing"
+                  disabled={true}
+                  style={{ float: "left", width: "auto", margin: '0 12px' }}
+                />
+              </RadioButtonGroup>
+            </div>}
+            iconClassNameRight="muidocs-icon-navigation-expand-more"
+          />
           <Drag action="insert" collection={Items}>
             <button
               style={{
@@ -70,6 +112,7 @@ class Page extends React.Component {
           </Drag>
           <Authorization/>
         </div>
+        
         <div>
           <br/>
           <span style={{ fontSize: '0.75em' }}>(Users)</span>
@@ -82,7 +125,7 @@ class Page extends React.Component {
           <Documents collection={Items} query={{}} recursion={true}/>
         </div>
       </div>
-    );
+    </MuiThemeProvider>);
   }
 }
 
