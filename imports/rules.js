@@ -86,3 +86,24 @@ Rules.allow({
     return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 });
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    Rules.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({added(rule) {
+      Rules._queue.spread(Rules.graph._generateLink(rule));
+    }});
+    Rules.find({ launched: 'unspread' }).observe({ added(rule) {
+      Rules._queue.unspread(Rules.graph._generateLink(rule));
+    } });
+    Rules.find({ launched: 'breakpoints' }).forEach((rule) => {
+      Rules._queue.breakpoints(rule, rule.breakpoints);
+    });
+    Rules.find({}).observe({
+      changed(newRule, oldRule) {
+        var difference = lodash.difference(newRule.breakpoints, oldRule.breakpoints);
+        difference.push.apply(difference, lodash.difference(oldRule.breakpoints, newRule.breakpoints));
+        Rules._queue.breakpoints(newRule, difference);
+      }
+    });
+  });
+}

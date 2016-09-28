@@ -51,4 +51,15 @@ Joining.allow({
   remove(userId, doc) {
     return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
-})
+});
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    Joining.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(joining) {
+      Joining._queue.spread(Joining.graph._generateLink(joining));
+    } });
+    Joining.find({ launched: 'unspread' }).observe({ added(joining) {
+      Joining._queue.unspread(Joining.graph._generateLink(joining));
+    } });
+  });
+}

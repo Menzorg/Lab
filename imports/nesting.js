@@ -61,4 +61,15 @@ Nesting.allow({
   remove(userId, doc) {
     return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
-})
+});
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    Nesting.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(nesting) {
+      Nesting._queue.spread(Nesting.graph._generateLink(nesting));
+    } });
+    Nesting.find({ launched: 'unspread' }).observe({ added(nesting) {
+      Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
+    } });
+  });
+}

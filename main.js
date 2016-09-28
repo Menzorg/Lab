@@ -84,62 +84,6 @@ if (Meteor.isServer) {
   attachGraphSpreadingPath(Joining);
   attachGraphSpreadingSpreader(Rules);
   attachGraphSpreadingSpread(Rights);
-  
-  Meteor.startup(function () {
-    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: false } }).observe({
-      added(right) {
-        var _right = Rights.graph._generateLink(right);
-        Rights._queue.spread(_right);
-        Rights._queue.respread.insert(_right);
-      },
-      changed(newRight, oldRight) {
-        var _right = Rights.graph._generateLink(newRight);
-        Rights._queue.respread(_right);
-      }
-    });
-    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: true } }).observe({
-      added(right) {
-        var _right = Rights.graph._generateLink(right);
-        Rights._queue.unspread(_right);
-        Rights._queue.respread.remove(_right);
-      },
-      changed(newRight, oldRight) {
-        var _right = Rights.graph._generateLink(newRight);
-        Rights._queue.respread(_right);
-      }
-    });
-    
-    Rules.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({added(rule) {
-      Rules._queue.spread(Rules.graph._generateLink(rule));
-    }});
-    Rules.find({ launched: 'unspread' }).observe({ added(rule) {
-      Rules._queue.unspread(Rules.graph._generateLink(rule));
-    } });
-    Rules.find({ launched: 'breakpoints' }).forEach((rule) => {
-      Rules._queue.breakpoints(rule, rule.breakpoints);
-    });
-    Rules.find({}).observe({
-      changed(newRule, oldRule) {
-        var difference = lodash.difference(newRule.breakpoints, oldRule.breakpoints);
-        difference.push.apply(difference, lodash.difference(oldRule.breakpoints, newRule.breakpoints));
-        Rules._queue.breakpoints(newRule, difference);
-      }
-    });
-    
-    Nesting.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(nesting) {
-      Nesting._queue.spread(Nesting.graph._generateLink(nesting));
-    } });
-    Nesting.find({ launched: 'unspread' }).observe({ added(nesting) {
-      Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
-    } });
-    
-    Joining.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(joining) {
-      Joining._queue.spread(Joining.graph._generateLink(joining));
-    } });
-    Joining.find({ launched: 'unspread' }).observe({ added(joining) {
-      Joining._queue.unspread(Joining.graph._generateLink(joining));
-    } });
-  });
 }
 
 Error.stackTraceLimit = 25;

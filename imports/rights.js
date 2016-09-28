@@ -181,3 +181,30 @@ Rights.allow({
     return false;
   }
 })
+
+if (Meteor.isServer) {
+  Meteor.startup(function () {
+    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: false } }).observe({
+      added(right) {
+        var _right = Rights.graph._generateLink(right);
+        Rights._queue.spread(_right);
+        Rights._queue.respread.insert(_right);
+      },
+      changed(newRight, oldRight) {
+        var _right = Rights.graph._generateLink(newRight);
+        Rights._queue.respread(_right);
+      }
+    });
+    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: true } }).observe({
+      added(right) {
+        var _right = Rights.graph._generateLink(right);
+        Rights._queue.unspread(_right);
+        Rights._queue.respread.remove(_right);
+      },
+      changed(newRight, oldRight) {
+        var _right = Rights.graph._generateLink(newRight);
+        Rights._queue.respread(_right);
+      }
+    });
+  });
+}
