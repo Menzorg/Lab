@@ -135,7 +135,9 @@ class _Document extends React.Component {
       buttons = (<span> </span>);
     }
     
-    rights = <RightsComponent target={document.ref()}/>;
+    rights = (<span>
+      <RightsComponent target={document.ref()}/>
+    </span>);
     
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
