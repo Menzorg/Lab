@@ -21,12 +21,9 @@ class _Documents extends React.Component {
       <div>{this.props.children}</div>
       {this.props.documents.map((document) => {
         return (<Document
-          collection={this.props.collection}
+          {...this.props}
           key={document.ref()}
           document={document}
-          recursion={this.props.recursion}
-          before={this.props.before}
-          buttons={this.props.buttons}
         />);
       })}
     </div>);
@@ -69,6 +66,10 @@ class _Document extends React.Component {
     children = (<div>
       <Documents
         collection={Nesting}
+        query={{ source: document.ref() }}
+      />
+      <Documents
+        collection={Joining}
         query={{ source: document.ref() }}
       />
       {collection == Rules?
@@ -183,11 +184,12 @@ _Document.childContextTypes = {
   recursionProtection: React.PropTypes.array
 };
 
-var Document = createContainer(({ before, collection, document, recursion }) => {
+var Document = createContainer(({ before, collection, document, recursion, reference }) => {
   return {
     before, collection, document, recursion,
     rightly: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false,
-    rules: collection == Users?Rights.find({ root: { $exists: false }, source: document.ref() }).fetch():[]
+    rules: collection == Users?Rights.find({ root: { $exists: false }, source: document.ref() }).fetch():[],
+    reference
   };
 }, _Document);
 

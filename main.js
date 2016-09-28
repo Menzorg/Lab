@@ -11,6 +11,7 @@ import { refs } from './imports/refs';
 import './imports/users';
 import './imports/items';
 import './imports/nesting';
+import './imports/joining';
 import './imports/rights';
 import './imports/rules';
 
@@ -80,6 +81,7 @@ function attachGraphSpreadingSpread(collection) {
 
 if (Meteor.isServer) {
   attachGraphSpreadingPath(Nesting);
+  attachGraphSpreadingPath(Joining);
   attachGraphSpreadingSpreader(Rules);
   attachGraphSpreadingSpread(Rights);
   
@@ -129,6 +131,13 @@ if (Meteor.isServer) {
     } });
     Nesting.find({ launched: 'unspread' }).observe({ added(nesting) {
       Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
+    } });
+    
+    Joining.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(joining) {
+      Joining._queue.spread(Joining.graph._generateLink(joining));
+    } });
+    Joining.find({ launched: 'unspread' }).observe({ added(joining) {
+      Joining._queue.unspread(Joining.graph._generateLink(joining));
     } });
   });
 }

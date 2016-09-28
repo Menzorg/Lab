@@ -21,7 +21,6 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FlatButton from 'material-ui/FlatButton';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
-
 injectTapEventPlugin();
 
 var Authorization = createContainer(() => {
@@ -54,6 +53,15 @@ var Authorization = createContainer(() => {
 });
 
 class Page extends React.Component {
+  constructor() {
+    super();
+    this.state = { ancientGraphForLinking: 'nesting' };
+  }
+  getChildContext() {
+    return {
+      ancientGraphForLinking: this.state.ancientGraphForLinking
+    };
+  }
   render() {
     var style;
     return (<MuiThemeProvider>
@@ -66,26 +74,29 @@ class Page extends React.Component {
             title={<div style={{ fontSize: '0.7em', paddingTop: '20px' }}>
               <RadioButtonGroup 
                 name="shipSpeed"
-                defaultSelected="not_light"
+                defaultSelected={this.state.ancientGraphForLinking}
+                onChange={(event, value) => {
+                  this.setState({ ancientGraphForLinking: value })
+                }}
               >
                 <RadioButton
-                  value="0"
+                  value="nesting"
                   label="Nesting"
                   style={{ float: "left", width: "auto", margin: '0 12px' }}
                 />
                 <RadioButton
-                  value="1"
+                  value="joining"
                   label="Joining"
                   style={{ float: "left", width: "auto", margin: '0 12px' }}
                 />
                 <RadioButton
-                  value="2"
+                  value="commenting"
                   label="Commenting"
                   disabled={true}
                   style={{ float: "left", width: "auto", margin: '0 12px' }}
                 />
                 <RadioButton
-                  value="3"
+                  value="aliasing"
                   label="Aliasing"
                   disabled={true}
                   style={{ float: "left", width: "auto", margin: '0 12px' }}
@@ -128,6 +139,10 @@ class Page extends React.Component {
     </MuiThemeProvider>);
   }
 }
+
+Page.childContextTypes = {
+  ancientGraphForLinking: React.PropTypes.any
+};
 
 var _Page = DragDropContext(HTML5Backend)(Page);
 

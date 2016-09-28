@@ -51,7 +51,8 @@ if (Meteor.isServer) {
         // </AppRightssLogic>
         
         if (pathLink) {
-          Nesting.graph.get(pathLink.id, undefined, (error, pathLink) => {
+          var pathCollection = getCollection(pathLink.id);
+          pathCollection.graph.get(pathLink.id, undefined, (error, pathLink) => {
             if (!pathLink) callback(undefined);
             else this.get({
               source: newSpreadLink.source, target: newSpreadLink.target,
@@ -90,6 +91,7 @@ if (Meteor.isServer) {
 
   Rights.spreading = new GraphSpreading(Rights.graph);
   Rights.spreading.addPathGraph(Nesting.graph);
+  Rights.spreading.addPathGraph(Joining.graph);
   
   Rights.queue = new QueueSpreading(Rights.spreading);
   
