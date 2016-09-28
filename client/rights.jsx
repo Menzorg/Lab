@@ -24,22 +24,22 @@ class RightComponent extends React.Component {
 
 class _Rights extends React.Component {
   render() {
-    return (<span style={{
+    return <span style={{
       fontSize: '0.75em'
     }}>
-      {this.props.right.map((document) => {
+      {this.props.rights.map((document) => {
         return (<span key={document._id}>
           <RightComponent collection={Rights} document={document}/>&nbsp;
         </span>);
       })}
-    </span>);
+    </span>;
   }
 }
 
 var RightsComponent = createContainer(({ target }) => {
   return {
-    right: Rights.find({ removed: { $exists: false }, target: target }).fetch()
+    rights: Rights.find({ removed: { $exists: false }, target: target }).fetch()
   };
 }, _Rights);
 
-export { RightsComponent as Rights, RightComponent as Right };
+export { RightsComponent, RightComponent };

@@ -36,7 +36,9 @@ if (Meteor.isServer) {
     Nesting.graph.count({ target: newLink.target }, undefined, (error, count) => {
       if (!count) {
         var targetCollection = getCollection(newLink.target);
-        targetCollection.graph.remove(newLink.target);
+        if (targetCollection != Users) {
+          targetCollection.graph.remove(newLink.target);
+        }
       }
     });
   });

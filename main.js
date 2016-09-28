@@ -37,18 +37,24 @@ function attachGraphSpreadingSpreader(collection) {
   });
   collection.before.update((userId, doc, fieldNames, modifier, options) => {
     var source, target, guarantor;
-    if (!lodash.includes(fieldNames, 'launched') && !doc.removed) {
-      if (lodash.includes(fieldNames, 'removed')) {
+    if (!doc.removed) {
+      if (lodash.includes(fieldNames, 'breakpoints')) {
         if (!modifier.$addToSet) modifier.$addToSet = {};
-        modifier.$addToSet.launched = 'unspread';
-      } else {
-        if (
-          lodash.includes(fieldNames, 'source') ||
-          lodash.includes(fieldNames, 'target') ||
-          lodash.includes(fieldNames, 'guarantor')
-        ) {
+        modifier.$addToSet.launched = 'breakpoints';
+      }
+      if (!lodash.includes(fieldNames, 'launched')) {
+        if (lodash.includes(fieldNames, 'removed')) {
           if (!modifier.$addToSet) modifier.$addToSet = {};
-          modifier.$addToSet.launched = { $each: ['unspread', 'spread'] };
+          modifier.$addToSet.launched = 'unspread';
+        } else {
+          if (
+            lodash.includes(fieldNames, 'source') ||
+            lodash.includes(fieldNames, 'target') ||
+            lodash.includes(fieldNames, 'guarantor')
+          ) {
+            if (!modifier.$addToSet) modifier.$addToSet = {};
+            modifier.$addToSet.launched = { $each: ['unspread', 'spread'] };
+          }
         }
       }
     }
@@ -79,7 +85,7 @@ if (Meteor.isServer) {
   
   Meteor.startup(function () {
     Rights.find({ $nor: [{ process: { $size: 0 } }, { launched: { $size: 0 } }], removed: { $exists: false } }).observe({
-        added(right) {
+      added(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.spread(_right);
         Rights._queue.respread.insert(_right);
@@ -99,6 +105,16 @@ if (Meteor.isServer) {
     Rules.find({ launched: 'unspread' }).observe({ added(rule) {
       Rules._queue.unspread(Rules.graph._generateLink(rule));
     } });
+    Rules.find({ launched: 'breakpoints' }).forEach((rule) => {
+      Rules._queue.breakpoints(rule, rule.breakpoints);
+    });
+    Rules.find({}).observe({
+      changed(newRule, oldRule) {
+        var difference = lodash.difference(newRule.breakpoints, oldRule.breakpoints);
+        difference.push.apply(difference, lodash.difference(oldRule.breakpoints, newRule.breakpoints));
+        Rules._queue.breakpoints(newRule, difference);
+      }
+    });
     
     Nesting.find({ $and: [{ launched: { $ne: 'unspread'}}, { launched: 'spread' }] }).observe({ added(nesting) {
       Nesting._queue.spread(Nesting.graph._generateLink(nesting));

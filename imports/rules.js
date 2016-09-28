@@ -1,5 +1,6 @@
 import lodash from 'lodash';
 import { Meteor } from 'meteor/meteor';
+import async from 'async';
 
 import colors from 'material-ui/styles/colors';
 
@@ -30,6 +31,30 @@ if (Meteor.isServer) {
   };
   Rules._queue.unspread = (oldLink) => {
     Rights.queue.unspreadBySpreader(Rules.graph, oldLink);
+  };
+  Rules._queue.breakpoints = (rule, breakpoints) => {
+    var process = refs.generate(Rules._ref, rule._id);
+    async.each(breakpoints, (breakpoint, nextBreakpoint) => {
+      var rights = Rights.find({
+        spreader: rule.ref(), target: breakpoint,
+        removed: { $exists: false }
+      }).fetch();
+      async.each(rights, (right, nextRight) => {
+        var rightRef = refs.generate(Rights._ref, right._id);
+        Rights.spreading.unspreadFromRemovedSpreadLinkByPrevId(
+          rightRef, { process: process }, undefined,
+          (error, count) => {
+            Rights.spreading.spreadFromSpreadLink(Rights.graph._generateLink(right), { process: process }, undefined, () => {
+              nextRight();
+            });
+          }
+        );
+      }, () => {
+        nextBreakpoint();
+      });
+    }, () => {
+      Rights.queue.removeFromLaunched(process, 'breakpoints');
+    });
   };
 
   Rules.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));

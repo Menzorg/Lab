@@ -7,7 +7,7 @@
   "dependencies": {
     "ancient-graph": "0.0.29",
     "ancient-graph-removed": "0.0.2",
-    "ancient-graph-spreading": "0.0.8",
+    "ancient-graph-spreading": "0.0.9",
     "ancient-refs": "0.0.1",
     "async": "^2.0.1",
     "lodash": "^4.16.1",

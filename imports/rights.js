@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import colors from 'material-ui/styles/colors';
 import async from 'async';
+import lodash from 'lodash';
 
 import { factorySpreadGraph, factoryRespreadGraph, GraphSpreading } from 'ancient-graph-spreading';
 
@@ -26,19 +27,26 @@ if (Meteor.isServer) {
         
         // <AppRightssLogic>
         var rule = refs.get(newSpreadLink.spreader);
-        if (rule && rule.guarantor && rule.source && rule.target) {
-          if (!(
-            rule.source == rule.target &&
-            rule.source == rule.guarantor &&
-            rule.source && getCollection(rule.source) == Users
-          )) {
-            var resolution = Users.isAllowed(rule.guarantor, newSpreadLink.target);
-            if (!resolution) {
+        if (rule) {
+          if (prevSpreadLink) {
+            if (lodash.includes(rule.breakpoints, prevSpreadLink.target)) {
               return callback(undefined);
             }
           }
-        } else {
-          return callback(undefined);
+          if (rule.guarantor && rule.source && rule.target) {
+            if (!(
+              rule.source == rule.target &&
+              rule.source == rule.guarantor &&
+              rule.source && getCollection(rule.source) == Users
+            )) {
+              var resolution = Users.isAllowed(rule.guarantor, newSpreadLink.target);
+              if (!resolution) {
+                return callback(undefined);
+              }
+            }
+          } else {
+            return callback(undefined);
+          }
         }
         // </AppRightssLogic>
         

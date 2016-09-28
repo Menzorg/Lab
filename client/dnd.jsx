@@ -15,6 +15,10 @@ var Drag = DragSource('dnd', {
         if (drag.collection == Users) {
           Meteor.loginWithPassword(drag.document.username, drag.document.username);
         }
+      } else if (drop.action == 'addToSet') {
+        drop.collection.update(drop.document._id, {
+          $addToSet: { [drop.field]: refs.generate(drag.collection._ref, drag.document._id) }
+        });
       } else if (drop.collection && drop.document) {
         if (drop.field) {
           switch (drag.action) {
