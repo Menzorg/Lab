@@ -85,5 +85,3 @@ if (Meteor.isServer) {
   attachGraphSpreadingSpreader(Rules);
   attachGraphSpreadingSpread(Rights);
 }
-
-Error.stackTraceLimit = 25;

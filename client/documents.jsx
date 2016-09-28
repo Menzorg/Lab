@@ -103,6 +103,7 @@ class _Document extends React.Component {
         (document.target?
           (<Documents
             reference={document.target}
+            recursion={collection == Joining}
           ></Documents>)
           :
           undefined
@@ -149,7 +150,10 @@ class _Document extends React.Component {
     
     title = <span style={style}>{document.ref()}</span>;
     
-    recursion = this.props.recursion || lodash.includes(this.context.recursionProtection, document.ref());
+    recursion = 
+      this.props.recursion ||
+      lodash.includes(this.context.recursionProtection, document.ref())
+    ;
     
     if (recursion) {
       children = buttons = rights = undefined;
