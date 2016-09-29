@@ -118,6 +118,13 @@ class _Document extends React.Component {
               reference={rule.target}
             />;
           })}
+          <div style={{ fontSize: '0.75em' }}>(joined)</div>
+          {this.props.joins.map((join) => {
+            return <Documents
+              key={join._id}
+              reference={join.source}
+            />;
+          })}
         </div>
       :undefined}
     </div>);
@@ -192,7 +199,8 @@ var Document = createContainer(({ before, collection, document, recursion, refer
   return {
     before, collection, document, recursion,
     rightly: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false,
-    rules: collection == Users?Rights.find({ root: { $exists: false }, source: document.ref() }).fetch():[],
+    rules: Rights.find({ root: { $exists: false }, source: document.ref() }).fetch(),
+    joins: Joining.find({ target: document.ref() }).fetch(),
     reference
   };
 }, _Document);
