@@ -63,7 +63,8 @@ var Drag = DragSource('dnd', {
                     Nesting.insert({ source: drop.document.ref(), target: refs.generate(Rules._ref, Rules.insert({
                       guarantor: drop.document.ref(),
                       source: drop.document.ref(),
-                      target: drop.document.ref()
+                      target: drop.document.ref(),
+                      rightsTypes: ['fetching', 'owning']
                     })) });
                     break;
                 }

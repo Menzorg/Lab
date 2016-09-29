@@ -113,6 +113,8 @@ if (Meteor.isServer) {
       targetCollection.update(refs.parse(newLink.target)[1], { $addToSet: { __fetchable: newLink.source } }, () => {
         Rights.queue.spreadBySpread(newLink);
       });
+    } else {
+      Rights.queue.spreadBySpread(newLink);
     }
   }
   Rights._queue.unspread = (oldLink) => {
