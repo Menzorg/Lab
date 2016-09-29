@@ -65,7 +65,7 @@ class _Document extends React.Component {
     });
   }
   render() {
-    var { collection, document, rightly } = this.props;
+    var { collection, document, allowed } = this.props;
     var color, children, buttons, rights, title, content, style, recursion;
     
     color = this.props.collection.color;
@@ -85,31 +85,30 @@ class _Document extends React.Component {
             collection={collection}
             document={document}
             field='source'
-            rightly={rightly}
+            allowed={allowed}
           >(source)</Field>
           <Field
             collection={collection}
             document={document}
             field='target'
-            rightly={rightly}
+            allowed={allowed}
           >(target)</Field>
           <Field
             collection={collection}
             document={document}
             field='guarantor'
-            rightly={rightly}
+            allowed={allowed}
           >(guarantor)</Field>
           <FieldArray
             collection={collection}
             document={document}
             field={'breakpoints'}
-            rightly={rightly}
+            allowed={allowed}
           >(breakpoints)</FieldArray>
           <span style={{ fontSize: '0.75em' }}>(rightTypes)</span>
           <div style={{ paddingLeft: 25 }}>
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'fetching')} label="fetching" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('fetching', value) }}/>
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'editing')} label="editing" style={{ width:  200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('editing', value) }}/>
-            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'delegating')} label="delegating" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('delegating', value) }}/>
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'owning')} label="owning" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('owning', value) }}/>
           </div>
         </span>)
@@ -146,7 +145,7 @@ class _Document extends React.Component {
     if (collection != Users) {
       buttons = (<span
           style={{
-            color: rightly?colors.red700:colors.grey400,
+            color: allowed?colors.red700:colors.grey400,
             marginLeft: 0, cursor: 'pointer'
           }}
           onClick={() => {
@@ -165,7 +164,7 @@ class _Document extends React.Component {
     style = { color: color };
     if (document.removed) style.textDecoration = 'line-through';
     
-    if (!rightly) {
+    if (!allowed) {
       style.fontStyle = 'italic';
     }
     
@@ -210,9 +209,10 @@ _Document.childContextTypes = {
 };
 
 var Document = createContainer(({ before, collection, document, recursion, reference }) => {
+  var rightTypes = collection == Nesting? ['owning'] : ['editing'];
   return {
     before, collection, document, recursion,
-    rightly: Meteor.userId()?isAllowed('fetching', Meteor.user().ref(), document.ref()):false,
+    allowed: Meteor.userId()?isAllowed(rightTypes, Meteor.user().ref(), document.ref()):false,
     rules: Rights.find({ root: { $exists: false }, source: document.ref() }).fetch(),
     joins: Joining.find({ target: document.ref() }).fetch(),
     reference
@@ -221,7 +221,7 @@ var Document = createContainer(({ before, collection, document, recursion, refer
 
 class Field extends React.Component {
   render() {
-    var { collection, document, field, rightly } = this.props;
+    var { collection, document, field, allowed } = this.props;
     var children;
     
     children = (<div>
@@ -245,7 +245,7 @@ class Field extends React.Component {
           {collection != Users?
             (<span
               style={{
-                color: rightly?colors.red700:colors.grey400,
+                color: allowed?colors.red700:colors.grey400,
                 cursor: 'pointer'
               }}
               onClick={() => {
@@ -260,7 +260,7 @@ class Field extends React.Component {
   }
 }
 
-var FieldArrayQueries = ({ document, collection, field, values, rightly }) => {
+var FieldArrayQueries = ({ document, collection, field, values, allowed }) => {
   if (values) {
     return <div>
       {values.map((value) => {
@@ -270,7 +270,7 @@ var FieldArrayQueries = ({ document, collection, field, values, rightly }) => {
           recursion={true}
           buttons={<span
             style={{
-              color: rightly?colors.red700:colors.grey400,
+              color: allowed?colors.red700:colors.grey400,
               cursor: 'pointer'
             }}
             onClick={() => {
@@ -287,7 +287,7 @@ var FieldArrayQueries = ({ document, collection, field, values, rightly }) => {
 
 class FieldArray extends React.Component {
   render() {
-    var { collection, document, field, rightly } = this.props;
+    var { collection, document, field, allowed } = this.props;
     var children;
     
     return (<div>
@@ -302,7 +302,7 @@ class FieldArray extends React.Component {
         </span>
       </Drop>
       <div style={{ paddingLeft: 25 }}>
-        <FieldArrayQueries document={document} collection={collection} values={document[field]} rightly={rightly} field={field}/>
+        <FieldArrayQueries document={document} collection={collection} values={document[field]} allowed={allowed} field={field}/>
       </div>
     </div>);
   }

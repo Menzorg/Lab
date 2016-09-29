@@ -17,7 +17,7 @@ if (Meteor.isServer) {
       guarantor: doc.ref(),
       source: doc.ref(),
       target: doc.ref(),
-      rightsTypes: ['fetching', 'owning']
+      rightsTypes: ['fetching', 'editing', 'owning']
     });
     Nesting.graph.insert({
       source: doc.ref(),

@@ -34,9 +34,9 @@ Items.allow({
     return true;
   },
   update(userId, doc) {
-    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['editing'], refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['editing'], refs.generate(Users._ref, userId), doc.ref());
   }
 });

@@ -110,7 +110,7 @@ if (Meteor.isServer) {
   Rights._queue.spread = (newLink) => {
     var targetCollection = getCollection(newLink.target);
     if (lodash.includes(newLink.rightsTypes, 'fetching')) {
-      targetCollection.update(refs.parse(newLink.target)[1], { $addToSet: { __fetchable: newLink.source } }, () => {
+      Rights._queue.insertRightType(newLink, () => {
         Rights.queue.spreadBySpread(newLink);
       });
     } else {
@@ -118,26 +118,39 @@ if (Meteor.isServer) {
     }
   }
   Rights._queue.unspread = (oldLink) => {
-    var targetCollection = getCollection(oldLink.target);
-    if (targetCollection != Users) {
-      var count = Rights.find({
-        _id: { $not: { $eq: oldLink._id } },
-        removed: { $exists: false }, source: oldLink.source, target: oldLink.target,
-        rightsTypes: 'fetching'
-      }).count();
-      if (!count) {
-        targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __fetchable: oldLink.source } }, () => {
-          Rights.queue.unspreadBySpread(oldLink);
-        });
-      } else Rights.queue.unspreadBySpread(oldLink);
-    } else Rights.queue.unspreadBySpread(oldLink);
+    Rights._queue.removeRightType(oldLink,() => {
+      Rights.queue.unspreadBySpread(oldLink);
+    });
   }
+  
+  Rights._queue.removeRightType = (link, callback) => {
+    var targetCollection = getCollection(link.target);
+    var count = Rights.find({
+      _id: { $not: { $eq: link._id } },
+      removed: { $exists: false }, source: link.source, target: link.target,
+      rightsTypes: 'fetching'
+    }).count();
+    if (!count) {
+      targetCollection.update(refs.parse(link.target)[1], { $pull: { __fetchable: link.source } }, () => {
+        if (callback) callback();
+      });
+    } else {
+      if (callback) callback();
+    }
+  };
+  
+  Rights._queue.insertRightType = (link, callback) => {
+    var targetCollection = getCollection(link.target);
+    targetCollection.update(refs.parse(link.target)[1], { $addToSet: { __fetchable: link.source } }, () => {
+      if (callback) callback();
+    });
+  };
+  
   Rights._queue.respread = (link) => {
     Rights._queue.respread.insert(link, () => {
       Rights._queue.respread.remove(link);
     });
   };
-  
   Rights._queue.respread.insert = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
@@ -199,6 +212,17 @@ Rights.allow({
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
+    var retype = (newRight, oldRight, _right) => {
+      if (lodash.includes(newRight.rightsTypes, 'fetching') && !lodash.includes(oldRight.rightsTypes, 'fetching')) {
+        Rights._queue.insertRightType(_right, () => {
+          Rights.queue.removeFromLaunched(_right.id, 'retype');
+        });
+      } else if(!lodash.includes(newRight.rightsTypes, 'fetching') && lodash.includes(oldRight.rightsTypes, 'fetching')) {
+        Rights._queue.removeRightType(_right, () => {
+          Rights.queue.removeFromLaunched(_right.id, 'retype');
+        });
+      }
+    };
     Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: false } }).observe({
       added(right) {
         var _right = Rights.graph._generateLink(right);
@@ -208,6 +232,7 @@ if (Meteor.isServer) {
       changed(newRight, oldRight) {
         var _right = Rights.graph._generateLink(newRight);
         Rights._queue.respread(_right);
+        retype(newRight, oldRight, _right);
       }
     });
     Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: true } }).observe({
@@ -219,6 +244,7 @@ if (Meteor.isServer) {
       changed(newRight, oldRight) {
         var _right = Rights.graph._generateLink(newRight);
         Rights._queue.respread(_right);
+        retype(newRight, oldRight, _right);
       }
     });
   });

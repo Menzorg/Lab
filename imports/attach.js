@@ -66,7 +66,7 @@ function attachGraphSpreadingSpread(collection) {
         modifier.$addToSet.launched = 'respread';
       } else if (!doc.removed) {
         if (!modifier.$addToSet) modifier.$addToSet = {};
-        modifier.$addToSet.launched = { $each: ['respread'] };
+        modifier.$addToSet.launched = { $each: ['respread', 'retype'] };
       }
     }
   });

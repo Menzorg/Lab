@@ -45,13 +45,13 @@ if (Meteor.isClient) Meteor.subscribe('joining');
 
 Joining.allow({
   insert(userId, doc) {
-    return doc.source?isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source?isAllowed(['owning'], refs.generate(Users._ref, userId), doc.source):false;
   },
   update(userId, doc) {
-    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());
   }
 });
 

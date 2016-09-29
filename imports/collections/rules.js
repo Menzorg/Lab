@@ -88,11 +88,11 @@ Rules.allow({
       if (guarantor && guarantor != refs.generate(Users._ref, userId)) return false;
     }
     return (
-      isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref())
+      isAllowed(['editing'], refs.generate(Users._ref, userId), doc.ref())
     );
   },
   remove(userId, doc) {
-    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['editing'], refs.generate(Users._ref, userId), doc.ref());
   }
 });
 
