@@ -2,10 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import colors from 'material-ui/styles/colors';
 
 import { factoryPathGraph } from 'ancient-graph-spreading';
-import { ExistedGraph, NonExistedGraph } from './removed';
-import { getCollection } from './getCollection';
-import { refs } from './refs';
-import { isAllowed } from './isAllowed';
+import { ExistedGraph, NonExistedGraph } from '../removed';
+import { getCollection } from '../getCollection';
+import { refs } from '../refs';
+import { isAllowed } from '../isAllowed';
+import { attachGraphSpreadingPath } from '../attach';
 
 Joining = new Meteor.Collection('joining');
 
@@ -32,8 +33,8 @@ if (Meteor.isServer) {
     Rights.queue.unspreadByPath(Joining.graph, oldLink);
   };
   
-  Joining.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
-  Joining.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
+  Joining.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Joining.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('joining', function() {
@@ -53,6 +54,10 @@ Joining.allow({
     return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 });
+
+if (Meteor.isServer) {
+  attachGraphSpreadingPath(Joining);
+}
 
 if (Meteor.isServer) {
   Meteor.startup(function () {

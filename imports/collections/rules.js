@@ -5,9 +5,10 @@ import async from 'async';
 import colors from 'material-ui/styles/colors';
 
 import { factorySpreaderGraph } from 'ancient-graph-spreading';
-import { ExistedGraph, NonExistedGraph } from './removed';
-import { refs } from './refs';
-import { isAllowed } from './isAllowed';
+import { ExistedGraph, NonExistedGraph } from '../removed';
+import { refs } from '../refs';
+import { isAllowed } from '../isAllowed';
+import { attachGraphSpreadingSpreader } from '../attach';
 
 Rules = new Meteor.Collection('rules');
 
@@ -19,7 +20,8 @@ if (Meteor.isServer) {
   
   Rules.graph = new ExistedRulesGraph(Rules, {
       id: '_id', source: 'source', target: 'target',
-      removed: 'removed', launched: 'launched', process: 'process', guarantor: 'guarantor'
+      removed: 'removed', launched: 'launched', process: 'process', guarantor: 'guarantor',
+      rightsTypes: 'rightsTypes'
   }, { name: 'rules', constantField: 'source', variableField: 'target' });
   
   Rules.graph.removed = new NonExistedRulesGraph(
@@ -58,8 +60,8 @@ if (Meteor.isServer) {
     });
   };
 
-  Rules.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
-  Rules.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
+  Rules.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Rules.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('rules', function() {
@@ -107,4 +109,8 @@ if (Meteor.isServer) {
       }
     });
   });
+}
+
+if (Meteor.isServer) {
+  attachGraphSpreadingSpreader(Rules);
 }

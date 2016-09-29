@@ -3,8 +3,8 @@ import lodash from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import colors from 'material-ui/styles/colors';
 
-import { ExistedGraph, NonExistedGraph } from './removed';
-import { refs } from './refs';
+import { ExistedGraph, NonExistedGraph } from '../removed';
+import { refs } from '../refs';
 
 Users = Meteor.users;
 
@@ -35,8 +35,8 @@ if (Meteor.isServer) {
     Users.graph.collection, Users.graph.fields, Users.graph.config
   );
     
-  Users.graph.removed.on('insert', (oldLink, newLink) => removeAncientItem(newLink));
-  Users.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
+  Users.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Users.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('users', () => {

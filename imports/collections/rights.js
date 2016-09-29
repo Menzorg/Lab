@@ -5,11 +5,13 @@ import lodash from 'lodash';
 
 import { factorySpreadGraph, factoryRespreadGraph, GraphSpreading } from 'ancient-graph-spreading';
 
-import { ExistedGraph, NonExistedGraph } from './removed';
-import { QueueSpreading } from '../imports/queue';
-import { getCollection } from '../imports/getCollection';
-import { refs } from '../imports/refs';
-import { isAllowed } from '../imports/isAllowed';
+import { ExistedGraph, NonExistedGraph } from '../removed';
+import { QueueSpreading } from '../queue';
+import { getCollection } from '../getCollection';
+import { refs } from '../refs';
+import { isAllowed } from '../isAllowed';
+
+import { attachGraphSpreadingSpread } from '../attach';
 
 Rights = new Meteor.Collection('rights');
 
@@ -208,4 +210,8 @@ if (Meteor.isServer) {
       }
     });
   });
+}
+
+if (Meteor.isServer) {
+  attachGraphSpreadingSpread(Rights);
 }

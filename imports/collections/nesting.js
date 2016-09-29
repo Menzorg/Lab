@@ -2,10 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import colors from 'material-ui/styles/colors';
 
 import { factoryPathGraph } from 'ancient-graph-spreading';
-import { ExistedGraph, NonExistedGraph } from './removed';
-import { getCollection } from './getCollection';
-import { refs } from './refs';
-import { isAllowed } from './isAllowed';
+import { ExistedGraph, NonExistedGraph } from '../removed';
+import { getCollection } from '../getCollection';
+import { refs } from '../refs';
+import { isAllowed } from '../isAllowed';
+import { attachGraphSpreadingPath } from '../attach';
 
 Nesting = new Meteor.Collection('nesting');
 
@@ -32,8 +33,15 @@ if (Meteor.isServer) {
     Rights.queue.unspreadByPath(Nesting.graph, oldLink);
   };
   
+  Nesting._queue.remove = (object) => {
+    if (!object.launched || !object.launched.length) {
+      Nesting.graph.remove({ target: object.id });
+      Nesting.graph.remove({ source: object.id });
+    }
+  };
+  
   Nesting.graph.removed.on('insert', (oldLink, newLink) => {
-    removeAncientItem(newLink);
+    Nesting._queue.remove(newLink);
     Nesting.graph.count({ target: newLink.target }, undefined, (error, count) => {
       if (!count) {
         var targetCollection = getCollection(newLink.target);
@@ -43,7 +51,7 @@ if (Meteor.isServer) {
       }
     });
   });
-  Nesting.graph.removed.on('update', (oldLink, newLink) => removeAncientItem(newLink));
+  Nesting.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('nesting', function() {
@@ -73,4 +81,8 @@ if (Meteor.isServer) {
       Nesting._queue.unspread(Nesting.graph._generateLink(nesting));
     } });
   });
+}
+
+if (Meteor.isServer) {
+  attachGraphSpreadingPath(Nesting);
 }
