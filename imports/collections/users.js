@@ -16,7 +16,8 @@ if (Meteor.isServer) {
     var ruleId = Rules.insert({
       guarantor: doc.ref(),
       source: doc.ref(),
-      target: doc.ref()
+      target: doc.ref(),
+      rightsTypes: ['fetching', 'owning']
     });
     Nesting.graph.insert({
       source: doc.ref(),

@@ -2,6 +2,7 @@ import React from 'react';
 import lodash from 'lodash';
 import { createContainer } from 'meteor/react-meteor-data';
 import colors from 'material-ui/styles/colors';
+import Toggle from 'material-ui/Toggle';
 
 import { RightsComponent } from './rights';
 import { Drag, Drop } from './dnd';
@@ -58,6 +59,11 @@ class _Document extends React.Component {
       recursionProtection: recursionProtection
     };
   }
+  setRightTypeToRule(type, value) {
+    this.props.collection.update(this.props.document._id, {
+      [value?'$addToSet':'$pull']: { rightsTypes: type }
+    });
+  }
   render() {
     var { collection, document, rightly } = this.props;
     var color, children, buttons, rights, title, content, style, recursion;
@@ -99,6 +105,13 @@ class _Document extends React.Component {
             field={'breakpoints'}
             rightly={rightly}
           >(breakpoints)</FieldArray>
+          <span style={{ fontSize: '0.75em' }}>(rightTypes)</span>
+          <div style={{ paddingLeft: 25 }}>
+            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'fetching')} label="fetching" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('fetching', value) }}/>
+            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'editing')} label="editing" style={{ width:  200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('editing', value) }}/>
+            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'delegating')} label="delegating" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('delegating', value) }}/>
+            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'owning')} label="owning" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('owning', value) }}/>
+          </div>
         </span>)
         :
         (document.target?
@@ -199,7 +212,7 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion, reference }) => {
   return {
     before, collection, document, recursion,
-    rightly: Meteor.userId()?isAllowed(Meteor.user().ref(), document.ref()):false,
+    rightly: Meteor.userId()?isAllowed('fetching', Meteor.user().ref(), document.ref()):false,
     rules: Rights.find({ root: { $exists: false }, source: document.ref() }).fetch(),
     joins: Joining.find({ target: document.ref() }).fetch(),
     reference

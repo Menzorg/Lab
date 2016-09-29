@@ -24,7 +24,7 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('items', function() {
-  return Items.find({ removed: { $exists: false }, __rightly: refs.generate(Users._ref, this.userId) });
+  return Items.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('items');
@@ -34,9 +34,9 @@ Items.allow({
     return true;
   },
   update(userId, doc) {
-    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
   }
 });

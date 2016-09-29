@@ -55,20 +55,20 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('nesting', function() {
-  return Nesting.find({ removed: { $exists: false }, __rightly: refs.generate(Users._ref, this.userId) });
+  return Nesting.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('nesting');
 
 Nesting.allow({
   insert(userId, doc) {
-    return doc.source?isAllowed(refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source?isAllowed(['owning'], refs.generate(Users._ref, userId), doc.source):false;
   },
   update(userId, doc) {
-    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());
   }
 });
 

@@ -1,3 +1,5 @@
+import lodash from 'lodash';
+
 function attachGraphSpreadingPath(collection) {
   collection.before.insert((userId, doc) => {
     doc.launched = ['spread'];
@@ -20,7 +22,6 @@ function attachGraphSpreadingSpreader(collection) {
     doc.launched = ['spread'];
   });
   collection.before.update((userId, doc, fieldNames, modifier, options) => {
-    var source, target, guarantor;
     if (!doc.removed) {
       if (lodash.includes(fieldNames, 'breakpoints')) {
         if (!modifier.$addToSet) modifier.$addToSet = {};
@@ -31,13 +32,22 @@ function attachGraphSpreadingSpreader(collection) {
           if (!modifier.$addToSet) modifier.$addToSet = {};
           modifier.$addToSet.launched = 'unspread';
         } else {
+          var $each = [];
           if (
             lodash.includes(fieldNames, 'source') ||
             lodash.includes(fieldNames, 'target') ||
             lodash.includes(fieldNames, 'guarantor')
           ) {
+            $each.push('unspread', 'spread');
+          }
+          if (
+            lodash.includes(fieldNames, 'rightsTypes')
+          ) {
+            $each.push('retype');
+          }
+          if ($each.length) {
             if (!modifier.$addToSet) modifier.$addToSet = {};
-            modifier.$addToSet.launched = { $each: ['unspread', 'spread'] };
+            modifier.$addToSet.launched = { $each: $each };
           }
         }
       }

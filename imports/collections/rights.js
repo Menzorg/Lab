@@ -36,13 +36,18 @@ if (Meteor.isServer) {
               return callback(undefined);
             }
           }
+          
+          if (lodash.includes(rule.rightsTypes, 'fetching')) {
+            newSpreadLink.rightsTypes = rule.rightsTypes;
+          }
+          
           if (rule.guarantor && rule.source && rule.target) {
             if (!(
               rule.source == rule.target &&
               rule.source == rule.guarantor &&
               rule.source && getCollection(rule.source) == Users
             )) {
-              var resolution = isAllowed(rule.guarantor, newSpreadLink.target);
+              var resolution = isAllowed(rule.rightsTypes, rule.guarantor, newSpreadLink.target, true);
               if (!resolution) {
                 return callback(undefined);
               }
@@ -50,6 +55,8 @@ if (Meteor.isServer) {
           } else {
             return callback(undefined);
           }
+        } else {
+          return callback(undefined);
         }
         // </AppRightssLogic>
         
@@ -85,7 +92,8 @@ if (Meteor.isServer) {
   Rights.graph = new ExistedRightsGraph(Rights, {
     id: '_id', source: 'source', target: 'target',
     removed: 'removed', launched: 'launched', process: 'process', spreader: 'spreader',
-    prev: 'prev', path: 'path', root: 'root'
+    prev: 'prev', path: 'path', root: 'root',
+    rightsTypes: 'rightsTypes'
   }, { name: 'spread', constantField: 'source', variableField: 'target' });
   
   Rights.graph.removed = new NonExistedRightsGraph(
@@ -101,18 +109,22 @@ if (Meteor.isServer) {
   Rights._queue = {};
   Rights._queue.spread = (newLink) => {
     var targetCollection = getCollection(newLink.target);
-    if (targetCollection != Users) {
-      targetCollection.update(refs.parse(newLink.target)[1], { $addToSet: { __rightly: newLink.source } }, () => {
+    if (lodash.includes(newLink.rightsTypes, 'fetching')) {
+      targetCollection.update(refs.parse(newLink.target)[1], { $addToSet: { __fetchable: newLink.source } }, () => {
         Rights.queue.spreadBySpread(newLink);
       });
-    } else Rights.queue.spreadBySpread(newLink);
+    }
   }
   Rights._queue.unspread = (oldLink) => {
     var targetCollection = getCollection(oldLink.target);
     if (targetCollection != Users) {
-      var count = Rights.find({ _id: { $not: { $eq: oldLink._id } }, removed: { $exists: false }, source: oldLink.source, target: oldLink.target }).count();
+      var count = Rights.find({
+        _id: { $not: { $eq: oldLink._id } },
+        removed: { $exists: false }, source: oldLink.source, target: oldLink.target,
+        rightsTypes: 'fetching'
+      }).count();
       if (!count) {
-        targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __rightly: oldLink.source } }, (...atgs) => {
+        targetCollection.update(refs.parse(oldLink.target)[1], { $pull: { __fetchable: oldLink.source } }, () => {
           Rights.queue.unspreadBySpread(oldLink);
         });
       } else Rights.queue.unspreadBySpread(oldLink);
@@ -127,17 +139,16 @@ if (Meteor.isServer) {
   Rights._queue.respread.insert = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        isAllowed(rule.guarantor, link.target, (rightly) => {
-          if (rightly) {
-            Rights.spreading.spreadNewSpreadLink({
-              [Rights.spreading.spreadGraph.constantField]: rule[Rules.graph.constantField],
-              [Rights.spreading.spreadGraph.variableField]: rule[Rules.graph.variableField],
-              spreader: rule.id
-            }, { process: link.id }, () => {
-              next();
-            });
-          }
-        });
+        var allowed = isAllowed(rule.rightsTypes, rule.guarantor, link.target, true);
+        if (allowed) {
+          Rights.spreading.spreadNewSpreadLink({
+            [Rights.spreading.spreadGraph.constantField]: rule[Rules.graph.constantField],
+            [Rights.spreading.spreadGraph.variableField]: rule[Rules.graph.variableField],
+            spreader: rule.id
+          }, { process: link.id }, () => {
+            next();
+          });
+        }
       }, () => {
         if (callback) callback();
         else Rights.queue.removeFromLaunched(link.id, 'respread');
@@ -148,15 +159,14 @@ if (Meteor.isServer) {
   Rights._queue.respread.remove = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        isAllowed(rule.guarantor, link.target, (rightly) => {
-          if (!rightly) {
-            Rights.graph.remove({
-              spreader: rule.id
-            }, (error, count) => {
-              next();
-            });
-          }
-        });
+        var allowed = isAllowed(rule.rightsTypes, rule.guarantor, link.target, true);
+        if (!allowed) {
+          Rights.graph.remove({
+            spreader: rule.id
+          }, (error, count) => {
+            next();
+          });
+        }
       }, () => {
         Rights.spreading.spreadTo(link.target, undefined, undefined, () => {
           if (callback) callback();

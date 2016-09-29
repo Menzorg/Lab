@@ -59,13 +59,19 @@ if (Meteor.isServer) {
       Rights.queue.removeFromLaunched(process, 'breakpoints');
     });
   };
+  
+  Rules._queue.retype = (rule) => {
+    Rights.update({ spreader: rule.id }, { $set: { rightsTypes: rule.rightsTypes }}, { multi: true }, () => {
+      Rights.queue.removeFromLaunched(rule.id, 'retype');
+    });
+  }
 
   Rules.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
   Rules.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('rules', function() {
-  return Rules.find({ removed: { $exists: false }, __rightly: refs.generate(Users._ref, this.userId) });
+  return Rules.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
 });
 
 if (Meteor.isClient) Meteor.subscribe('rules');
@@ -82,11 +88,11 @@ Rules.allow({
       if (guarantor && guarantor != refs.generate(Users._ref, userId)) return false;
     }
     return (
-      isAllowed(refs.generate(Users._ref, userId), doc.ref())
+      isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref())
     );
   },
   remove(userId, doc) {
-    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(['owning', 'editing'], refs.generate(Users._ref, userId), doc.ref());
   }
 });
 
@@ -101,6 +107,9 @@ if (Meteor.isServer) {
     Rules.find({ launched: 'breakpoints' }).forEach((rule) => {
       Rules._queue.breakpoints(rule, rule.breakpoints);
     });
+    Rules.find({ launched: 'retype' }).observe({ added(rule) {
+      Rules._queue.retype(Rules.graph._generateLink(rule));
+    } });
     Rules.find({}).observe({
       changed(newRule, oldRule) {
         var difference = lodash.difference(newRule.breakpoints, oldRule.breakpoints);
@@ -113,4 +122,7 @@ if (Meteor.isServer) {
 
 if (Meteor.isServer) {
   attachGraphSpreadingSpreader(Rules);
+  Rules.before.insert((userId, rule) => {
+    if (!rule.rightsTypes) rule.rightsTypes = ['fetching'];
+  });
 }
