@@ -5,6 +5,7 @@ import { factoryPathGraph } from 'ancient-graph-spreading';
 import { ExistedGraph, NonExistedGraph } from './removed';
 import { getCollection } from './getCollection';
 import { refs } from './refs';
+import { isAllowed } from './isAllowed';
 
 Joining = new Meteor.Collection('joining');
 
@@ -43,13 +44,13 @@ if (Meteor.isClient) Meteor.subscribe('joining');
 
 Joining.allow({
   insert(userId, doc) {
-    return doc.source?Users.isAllowed(refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source?isAllowed(refs.generate(Users._ref, userId), doc.source):false;
   },
   update(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 });
 

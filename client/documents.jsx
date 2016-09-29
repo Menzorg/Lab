@@ -6,6 +6,7 @@ import colors from 'material-ui/styles/colors';
 import { RightsComponent } from './rights';
 import { Drag, Drop } from './dnd';
 import { getCollection } from '../imports/getCollection';
+import { isAllowed } from '../imports/isAllowed';
 
 import { refs } from '../imports/refs';
 
@@ -198,7 +199,7 @@ _Document.childContextTypes = {
 var Document = createContainer(({ before, collection, document, recursion, reference }) => {
   return {
     before, collection, document, recursion,
-    rightly: Meteor.userId()?Users.isAllowed(Meteor.user().ref(), document.ref()):false,
+    rightly: Meteor.userId()?isAllowed(Meteor.user().ref(), document.ref()):false,
     rules: Rights.find({ root: { $exists: false }, source: document.ref() }).fetch(),
     joins: Joining.find({ target: document.ref() }).fetch(),
     reference

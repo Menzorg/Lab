@@ -7,6 +7,7 @@ import colors from 'material-ui/styles/colors';
 import { factorySpreaderGraph } from 'ancient-graph-spreading';
 import { ExistedGraph, NonExistedGraph } from './removed';
 import { refs } from './refs';
+import { isAllowed } from './isAllowed';
 
 Rules = new Meteor.Collection('rules');
 
@@ -79,11 +80,11 @@ Rules.allow({
       if (guarantor && guarantor != refs.generate(Users._ref, userId)) return false;
     }
     return (
-      Users.isAllowed(refs.generate(Users._ref, userId), doc.ref())
+      isAllowed(refs.generate(Users._ref, userId), doc.ref())
     );
   },
   remove(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 });
 

@@ -10,26 +10,6 @@ Users = Meteor.users;
 
 Users.color = colors.grey900;
 
-/**
- * Check right to object target for subject source.
- * 
- * @param {String} [sourceId=Meteor.user().ref()]
- * @param {String} targetId
- * @return {Boolean}
- */
-Users.isAllowed = function(sourceId, targetId, callback) {
-  if (!sourceId && Meteor.userId()) sourceId = Meteor.user().ref();
-  var result, storage;
-  if (!sourceId || !targetId) return false;
-  storage = refs.storage(sourceId);
-  if (storage == Users && sourceId == targetId) result = true;
-  else {
-    result = !!Rights.findOne({ removed: { $exists: false }, source: sourceId, target: targetId });
-  }
-  if (callback) callback(result);
-  return result;
-};
-
 if (Meteor.isServer) {
   Users.after.insert(function (userId, doc) {
     doc = this.transform(doc);

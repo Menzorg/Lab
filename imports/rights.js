@@ -9,6 +9,7 @@ import { ExistedGraph, NonExistedGraph } from './removed';
 import { QueueSpreading } from '../imports/queue';
 import { getCollection } from '../imports/getCollection';
 import { refs } from '../imports/refs';
+import { isAllowed } from '../imports/isAllowed';
 
 Rights = new Meteor.Collection('rights');
 
@@ -39,7 +40,7 @@ if (Meteor.isServer) {
               rule.source == rule.guarantor &&
               rule.source && getCollection(rule.source) == Users
             )) {
-              var resolution = Users.isAllowed(rule.guarantor, newSpreadLink.target);
+              var resolution = isAllowed(rule.guarantor, newSpreadLink.target);
               if (!resolution) {
                 return callback(undefined);
               }
@@ -124,7 +125,7 @@ if (Meteor.isServer) {
   Rights._queue.respread.insert = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        Users.isAllowed(rule.guarantor, link.target, (rightly) => {
+        isAllowed(rule.guarantor, link.target, (rightly) => {
           if (rightly) {
             Rights.spreading.spreadNewSpreadLink({
               [Rights.spreading.spreadGraph.constantField]: rule[Rules.graph.constantField],
@@ -145,7 +146,7 @@ if (Meteor.isServer) {
   Rights._queue.respread.remove = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        Users.isAllowed(rule.guarantor, link.target, (rightly) => {
+        isAllowed(rule.guarantor, link.target, (rightly) => {
           if (!rightly) {
             Rights.graph.remove({
               spreader: rule.id

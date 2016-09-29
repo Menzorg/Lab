@@ -3,6 +3,7 @@ import colors from 'material-ui/styles/colors';
 
 import { ExistedGraph, NonExistedGraph } from './removed';
 import { refs } from './refs';
+import { isAllowed } from './isAllowed';
 
 Items = new Meteor.Collection('items');
 
@@ -33,9 +34,9 @@ Items.allow({
     return true;
   },
   update(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
-    return Users.isAllowed(refs.generate(Users._ref, userId), doc.ref());
+    return isAllowed(refs.generate(Users._ref, userId), doc.ref());
   }
 })
