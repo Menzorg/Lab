@@ -1,8 +1,6 @@
 import React from 'react';
-import RaisedButton from 'material-ui/RaisedButton';
 import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
+import {List, ListItem} from 'material-ui/List';
 
 class RulePopover extends React.Component {
 
@@ -32,7 +30,7 @@ class RulePopover extends React.Component {
 
   render() {
     return (
-      <div>
+      <span>
         <span onTouchTap={this.handleTouchTap}>
           {this.props.children}
         </span>
@@ -43,14 +41,15 @@ class RulePopover extends React.Component {
           targetOrigin={{horizontal: 'left', vertical: 'top'}}
           onRequestClose={this.handleRequestClose}
         >
-          <Menu>
-            <MenuItem primaryText="Refresh" />
-            <MenuItem primaryText="Help &amp; feedback" />
-            <MenuItem primaryText="Settings" />
-            <MenuItem primaryText="Sign out" />
-          </Menu>
+          {this.props.rules}
+           <List>
+            <ListItem primaryText="All mail" />
+            <ListItem primaryText="Trash" />
+            <ListItem primaryText="Spam" />
+            <ListItem primaryText="Follow up" />
+          </List>
         </Popover>
-      </div>
+      </span>
     );
   }
 }

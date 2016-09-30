@@ -8,6 +8,7 @@ import { RightsComponent } from './rights';
 import { Drag, Drop } from './dnd';
 import { getCollection } from '../imports/getCollection';
 import { isAllowed } from '../imports/isAllowed';
+import { RulePopover } from './popover';
 
 import { refs } from '../imports/refs';
 
@@ -158,6 +159,8 @@ class _Document extends React.Component {
     }
     
     rights = (<span>
+      <RulePopover children="&hearts;" />
+      &nbsp;
       <RightsComponent target={document.ref()}/>
     </span>);
     
