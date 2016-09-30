@@ -12,7 +12,7 @@ import { refs } from './refs';
  * @return {Boolean}
  */
 function isAllowed(types, sourceId, targetId, allRequired) {
-  var value;
+  var value, $subjects;
   if (typeof(types) == 'string') types = [types];
   if (!sourceId && Meteor.userId()) sourceId = Meteor.user().ref();
   if (!sourceId || !targetId) return false;
@@ -20,12 +20,14 @@ function isAllowed(types, sourceId, targetId, allRequired) {
   else {
     if (refs.storage(targetId).findOne({ _id: refs.id(targetId), __draft: sourceId })) return true;
     else {
+      $subjects = refs.get(sourceId).mapJoining((join) => { return { source: join }});
+      
       if (!allRequired) {
         value = lodash.map(types, (type) => { return { rightsTypes: type }; });
       } else {
         value = { $all: types };
       }
-      return !!Rights.findOne({ removed: { $exists: false }, source: sourceId, target: targetId, [!allRequired?'$or':'rightsTypes']: value });
+      return !!Rights.findOne({ removed: { $exists: false }, target: targetId, $and: [{ $or: $subjects }, {[!allRequired?'$or':'rightsTypes']: value }] });
     }
   }
 };

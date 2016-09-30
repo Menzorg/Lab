@@ -30,3 +30,4 @@ lai:collection-extensions
 dburles:collection-helpers
 accounts-base
 accounts-password
+peerlibrary:reactive-publish

@@ -15,6 +15,7 @@ caching-compiler@1.1.7
 caching-html-compiler@1.0.7
 callback-hook@1.0.9
 check@1.2.3
+coffeescript@1.0.17
 dburles:collection-helpers@1.0.4
 ddp@1.2.5
 ddp-client@1.2.9
@@ -59,6 +60,11 @@ npm-bcrypt@0.9.1
 npm-mongo@1.5.49
 observe-sequence@1.0.12
 ordered-dict@1.0.8
+peerlibrary:assert@0.2.5
+peerlibrary:fiber-utils@0.6.0
+peerlibrary:reactive-mongo@0.1.1
+peerlibrary:reactive-publish@0.3.0
+peerlibrary:server-autorun@0.5.2
 promise@0.8.7
 random@1.0.10
 rate-limit@1.0.5

@@ -193,7 +193,8 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('rights', () => {
-  return Rights.find({ removed: { $exists: false }});
+  var query = { removed: { $exists: false } };
+  return Rights.find(query);
 });
 
 if (Meteor.isClient) Meteor.subscribe('rights');

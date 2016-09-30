@@ -41,7 +41,17 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('users', () => {
-  return Users.find({ removed: { $exists: false }});
+  return Users.find({ removed: { $exists: false }}, { fields: {
+    __fetchable: 1, __joining: 1
+  }});
 });
 
 if (Meteor.isClient) Meteor.subscribe('users');
+
+Users.helpers({
+  mapJoining(handler) {
+    var $joining = lodash.map(this.__joining, handler);
+    $joining.push(handler(this.ref()));
+    return $joining;
+  }
+});

@@ -60,7 +60,15 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('owning', function() {
-  return Owning.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
+  this.autorun(function (computation) {
+    var query = { removed: { $exists: false } };
+    if (this.userId) {
+      query.$or = [
+        { $or: Users.findOne(this.userId).mapJoining((join) => { return { __fetchable: join }}) }
+      ]
+    };
+    return Owning.find(query);
+  });
 });
 
 if (Meteor.isClient) Meteor.subscribe('owning');

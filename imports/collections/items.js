@@ -25,12 +25,14 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('items', function() {
-  return Items.find({
-    removed: { $exists: false },
-    $or: [
-      { __fetchable: refs.generate(Users._ref, this.userId) },
-      { __draft: refs.generate(Users._ref, this.userId) }
-    ]
+  this.autorun(function (computation) {
+    var query = { removed: { $exists: false } };
+    if (this.userId) {
+      query.$or = [
+        { $or: Users.findOne(this.userId).mapJoining((join) => { return { __fetchable: join }}) }
+      ]
+    };
+    return Items.find(query);
   });
 });
 
