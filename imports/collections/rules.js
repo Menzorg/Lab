@@ -8,7 +8,7 @@ import { factorySpreaderGraph } from 'ancient-graph-spreading';
 import { ExistedGraph, NonExistedGraph } from '../removed';
 import { refs } from '../refs';
 import { isAllowed } from '../isAllowed';
-import { attachGraphSpreadingSpreader } from '../attach';
+import { attachGraphSpreadingSpreader, attachDraftField } from '../attach';
 
 Rules = new Meteor.Collection('rules');
 
@@ -71,10 +71,20 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('rules', function() {
-  return Rules.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
+  return Rules.find({
+    removed: { $exists: false },
+    $or: [
+      { __fetchable: refs.generate(Users._ref, this.userId) },
+      { __draft: refs.generate(Users._ref, this.userId) }
+    ]
+  });
 });
 
 if (Meteor.isClient) Meteor.subscribe('rules');
+
+if (Meteor.isServer) {
+  attachDraftField(Rules);
+}
 
 Rules.allow({
   insert(userId, doc) {

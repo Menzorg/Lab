@@ -19,14 +19,14 @@ function isAllowed(types, sourceId, targetId, allRequired) {
     var value = { $all: types };
   }
   if (!sourceId && Meteor.userId()) sourceId = Meteor.user().ref();
-  var result, storage;
   if (!sourceId || !targetId) return false;
-  storage = refs.storage(sourceId);
-  if (storage == Users && sourceId == targetId) result = true;
+  if (refs.storage(sourceId) == Users && sourceId == targetId) return true;
   else {
-    result = !!Rights.findOne({ removed: { $exists: false }, source: sourceId, target: targetId, [!allRequired?'$or':'rightsTypes']: value });
+    if (refs.storage(targetId).findOne({ _id: refs.id(targetId), __draft: sourceId })) return true;
+    else {
+      return !!Rights.findOne({ removed: { $exists: false }, source: sourceId, target: targetId, [!allRequired?'$or':'rightsTypes']: value });
+    }
   }
-  return result;
 };
 
 export { isAllowed };

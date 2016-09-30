@@ -1,4 +1,5 @@
 import lodash from 'lodash';
+import { refs } from './refs';
 
 function attachGraphSpreadingPath(collection) {
   collection.before.insert((userId, doc) => {
@@ -72,4 +73,10 @@ function attachGraphSpreadingSpread(collection) {
   });
 };
 
-export { attachGraphSpreadingPath, attachGraphSpreadingSpread, attachGraphSpreadingSpreader };
+function attachDraftField(collection) {
+  collection.before.insert((userId, doc) => {
+    doc.__draft = refs.generate(Users._ref, userId);
+  });
+};
+
+export { attachGraphSpreadingPath, attachGraphSpreadingSpread, attachGraphSpreadingSpreader, attachDraftField };

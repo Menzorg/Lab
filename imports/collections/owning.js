@@ -28,7 +28,11 @@ if (Meteor.isServer) {
   
   Owning._queue = {};
   Owning._queue.spread = (newLink) => {
-    Rights.queue.spreadByPath(Owning.graph, newLink);
+    refs.collection(newLink.target).update(refs.id(newLink.target), {
+      $unset: { '__draft': '' }
+    }, () => {
+      Rights.queue.spreadByPath(Owning.graph, newLink);
+    });
   };
   Owning._queue.unspread = (oldLink) => {
     Rights.queue.unspreadByPath(Owning.graph, oldLink);
@@ -63,13 +67,10 @@ if (Meteor.isClient) Meteor.subscribe('owning');
 
 Owning.allow({
   insert(userId, doc) {
-    return doc.source?isAllowed(['owning'], refs.generate(Users._ref, userId), doc.source):false;
+    return doc.source&&doc.target?isAllowed(['owning'], refs.generate(Users._ref, userId), doc.source)&&isAllowed(['owning'], refs.generate(Users._ref, userId), doc.target):false;
   },
   update(userId, doc, fields, modifier) {
-    if (lodash.includes(fields, 'source') || lodash.includes(fields, 'target')) {
-      return false;
-    }
-    return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());
+    return false;
   },
   remove(userId, doc) {
     return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());

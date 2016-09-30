@@ -4,6 +4,7 @@ import colors from 'material-ui/styles/colors';
 import { ExistedGraph, NonExistedGraph } from '../removed';
 import { refs } from '../refs';
 import { isAllowed } from '../isAllowed';
+import { attachDraftField } from '../attach';
 
 Items = new Meteor.Collection('items');
 
@@ -24,10 +25,20 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('items', function() {
-  return Items.find({ removed: { $exists: false }, __fetchable: refs.generate(Users._ref, this.userId) });
+  return Items.find({
+    removed: { $exists: false },
+    $or: [
+      { __fetchable: refs.generate(Users._ref, this.userId) },
+      { __draft: refs.generate(Users._ref, this.userId) }
+    ]
+  });
 });
 
 if (Meteor.isClient) Meteor.subscribe('items');
+
+if (Meteor.isServer) {
+  attachDraftField(Items);
+}
 
 Items.allow({
   insert(userId, doc) {
