@@ -70,7 +70,8 @@ Owning.allow({
     return doc.source&&doc.target?isAllowed(['owning'], refs.generate(Users._ref, userId), doc.source)&&isAllowed(['owning'], refs.generate(Users._ref, userId), doc.target):false;
   },
   update(userId, doc, fields, modifier) {
-    return false;
+    if (lodash.includes(fields, 'source') || lodash.includes(fields, 'target')) return false;
+    return isAllowed(['editing'], refs.generate(Users._ref, userId), doc.ref());
   },
   remove(userId, doc) {
     return isAllowed(['owning'], refs.generate(Users._ref, userId), doc.ref());

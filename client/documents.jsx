@@ -150,8 +150,7 @@ class _Document extends React.Component {
             marginLeft: 0, cursor: 'pointer'
           }}
           onClick={() => {
-            if (document.removed) collection.remove(document._id);
-            else collection.update(document._id, { $set: { removed: true } });
+            collection.update(document._id, { $set: { removed: true } });
           }}
         >✗</span>);
     } else {
