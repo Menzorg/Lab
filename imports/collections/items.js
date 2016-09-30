@@ -19,8 +19,8 @@ if (Meteor.isServer) {
     Items.graph.collection, Items.graph.fields, Items.graph.config
   );
   
-  Items.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
-  Items.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Items.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Items.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('items', function() {

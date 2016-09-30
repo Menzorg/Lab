@@ -55,7 +55,7 @@ var Authorization = createContainer(() => {
 class Page extends React.Component {
   constructor() {
     super();
-    this.state = { ancientGraphForLinking: 'nesting' };
+    this.state = { ancientGraphForLinking: 'owning' };
   }
   getChildContext() {
     return {
@@ -80,8 +80,8 @@ class Page extends React.Component {
                 }}
               >
                 <RadioButton
-                  value="nesting"
-                  label="Nesting"
+                  value="owning"
+                  label="Owning"
                   style={{ float: "left", width: "auto", margin: '0 12px' }}
                 />
                 <RadioButton
@@ -129,8 +129,8 @@ class Page extends React.Component {
           <span style={{ fontSize: '0.75em' }}>(Users)</span>
           <Documents collection={Users} query={{}}/>
           <br/><br/>
-          <span style={{ fontSize: '0.75em' }}>(Nesting)</span>
-          <Documents collection={Nesting} query={{}} recursion={true}/>
+          <span style={{ fontSize: '0.75em' }}>(Owning)</span>
+          <Documents collection={Owning} query={{}} recursion={true}/>
           <br/><br/>
           <span style={{ fontSize: '0.75em' }}>(Items)</span>
           <Documents collection={Items} query={{}} recursion={true}/>

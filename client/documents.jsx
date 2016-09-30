@@ -73,7 +73,7 @@ class _Document extends React.Component {
     
     children = (<div>
       <Documents
-        collection={Nesting}
+        collection={Owning}
         query={{ source: document.ref() }}
       />
       <Documents
@@ -212,7 +212,7 @@ _Document.childContextTypes = {
 };
 
 var Document = createContainer(({ before, collection, document, recursion, reference }) => {
-  var rightTypes = collection == Nesting? ['owning'] : ['editing'];
+  var rightTypes = collection == Owning? ['owning'] : ['editing'];
   return {
     before, collection, document, recursion,
     allowed: Meteor.userId()?isAllowed(rightTypes, Meteor.user().ref(), document.ref()):false,

@@ -19,7 +19,7 @@ if (Meteor.isServer) {
       target: doc.ref(),
       rightsTypes: ['fetching', 'editing', 'owning']
     });
-    Nesting.graph.insert({
+    Owning.graph.insert({
       source: doc.ref(),
       target: refs.generate(Rules._ref, ruleId)
     });
@@ -36,8 +36,8 @@ if (Meteor.isServer) {
     Users.graph.collection, Users.graph.fields, Users.graph.config
   );
     
-  Users.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
-  Users.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Users.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Users.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('users', () => {

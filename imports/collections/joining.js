@@ -33,8 +33,8 @@ if (Meteor.isServer) {
     Rights.queue.unspreadByPath(Joining.graph, oldLink);
   };
   
-  Joining.graph.removed.on('insert', (oldLink, newLink) => Nesting._queue.remove(newLink));
-  Joining.graph.removed.on('update', (oldLink, newLink) => Nesting._queue.remove(newLink));
+  Joining.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Joining.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
 }
 
 if (Meteor.isServer) Meteor.publish('joining', function() {

@@ -57,10 +57,10 @@ var Drag = DragSource('dnd', {
               case 'insert':
                 switch (drag.collection) {
                   case Items:
-                    Nesting.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
+                    Owning.insert({ source: drop.document.ref(), target: refs.generate(Items._ref, Items.insert({})) });
                     break;
                   case Rules:
-                    Nesting.insert({ source: drop.document.ref(), target: refs.generate(Rules._ref, Rules.insert({
+                    Owning.insert({ source: drop.document.ref(), target: refs.generate(Rules._ref, Rules.insert({
                       guarantor: drop.document.ref(),
                       source: drop.document.ref(),
                       target: drop.document.ref(),

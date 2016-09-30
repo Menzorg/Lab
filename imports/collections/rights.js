@@ -101,7 +101,7 @@ if (Meteor.isServer) {
   );
 
   Rights.spreading = new GraphSpreading(Rights.graph);
-  Rights.spreading.addPathGraph(Nesting.graph);
+  Rights.spreading.addPathGraph(Owning.graph);
   Rights.spreading.addPathGraph(Joining.graph);
   
   Rights.queue = new QueueSpreading(Rights.spreading);
