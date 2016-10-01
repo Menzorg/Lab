@@ -20,12 +20,18 @@ if (Meteor.isServer) {
     Items.graph.collection, Items.graph.fields, Items.graph.config
   );
   
-  Items.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
-  Items.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Items.graph.removed.on('insert', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
+  Items.graph.removed.on('update', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
 }
 
 if (Meteor.isServer) Meteor.publish('items', function() {
-  this.autorun(function (computation) {
+  this.autorun((computation) => {
     var query = { removed: { $exists: false } };
     if (this.userId) {
       query.$or = [

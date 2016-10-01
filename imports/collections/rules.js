@@ -66,12 +66,18 @@ if (Meteor.isServer) {
     });
   }
 
-  Rules.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
-  Rules.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Rules.graph.removed.on('insert', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
+  Rules.graph.removed.on('update', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
 }
 
 if (Meteor.isServer) Meteor.publish('rules', function() {
-  this.autorun(function (computation) {
+  this.autorun((computation) => {
     var query = { removed: { $exists: false } };
     if (this.userId) {
       query.$or = [

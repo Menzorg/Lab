@@ -36,14 +36,18 @@ if (Meteor.isServer) {
     Users.graph.collection, Users.graph.fields, Users.graph.config
   );
     
-  Users.graph.removed.on('insert', (oldLink, newLink) => Owning._queue.remove(newLink));
-  Users.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
+  Users.graph.removed.on('insert', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
+  Users.graph.removed.on('update', (oldLink, newLink) => {
+    Owning._queue.remove(newLink);
+    Joining._queue.remove(newLink);
+  });
 }
 
 if (Meteor.isServer) Meteor.publish('users', () => {
-  return Users.find({ removed: { $exists: false }}, { fields: {
-    __fetchable: 1, __joining: 1
-  }});
+  return Users.find({ removed: { $exists: false }});
 });
 
 if (Meteor.isClient) Meteor.subscribe('users');

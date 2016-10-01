@@ -60,7 +60,7 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isServer) Meteor.publish('owning', function() {
-  this.autorun(function (computation) {
+  this.autorun((computation) => {
     var query = { removed: { $exists: false } };
     if (this.userId) {
       query.$or = [
