@@ -192,9 +192,10 @@ if (Meteor.isServer) {
   };
 }
 
-if (Meteor.isServer) Meteor.publish('rights', function() {
+if (Meteor.isServer) Meteor.publish('rights', function(query) {
   this.autorun((computation) => {
-    var query = { removed: { $exists: false } };
+    if (typeof(query) != 'object') query = {};
+    query.removed = { $exists: false };
     if (this.userId) {
       query.$or = [
         { $or: Users.findOne(this.userId).mapJoining((join) => { return { source: join }}) }

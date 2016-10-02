@@ -46,8 +46,12 @@ if (Meteor.isServer) {
   });
 }
 
-if (Meteor.isServer) Meteor.publish('users', () => {
-  return Users.find({ removed: { $exists: false }});
+if (Meteor.isServer) Meteor.publish('users', function(query) {
+  this.autorun((computation) => {
+    if (typeof(query) != 'object') query = {};
+    query.removed = { $exists: false };
+    return Users.find(query);
+  });
 });
 
 if (Meteor.isClient) Meteor.subscribe('users');

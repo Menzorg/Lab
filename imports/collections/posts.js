@@ -2,9 +2,11 @@ import { Meteor } from 'meteor/meteor';
 
 Posts = new Mongo.Collection('posts');
 
-if (Meteor.isServer) Meteor.publish('posts', function() {
+if (Meteor.isServer) Meteor.publish('posts', function(query) {
   this.autorun((computation) => {
-    return Posts.find({});
+    if (typeof(query) != 'object') query = {};
+    query.removed = { $exists: false };
+    return Posts.find(query);
   });
 });
 

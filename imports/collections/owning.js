@@ -59,9 +59,10 @@ if (Meteor.isServer) {
   Owning.graph.removed.on('update', (oldLink, newLink) => Owning._queue.remove(newLink));
 }
 
-if (Meteor.isServer) Meteor.publish('owning', function() {
+if (Meteor.isServer) Meteor.publish('owning', function(query) {
   this.autorun((computation) => {
-    var query = { removed: { $exists: false } };
+    if (typeof(query) != 'object') query = {};
+    query.removed = { $exists: false };
     if (this.userId) {
       query.$or = [
         { $or: Users.findOne(this.userId).mapJoining((join) => { return { __fetchable: join }}) }

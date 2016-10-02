@@ -84,10 +84,12 @@ if (Meteor.isServer) {
   });
 }
 
-if (Meteor.isServer) Meteor.publish('joining', function() {
+if (Meteor.isServer) Meteor.publish('joining', function(query) {
   this.autorun((computation) => {
     var $or;
-    var query = { removed: { $exists: false }, root: { $exists: false } };
+    if (typeof(query) != 'object') query = {};
+    query.removed = { $exists: false };
+    query.root = { $exists: false };
     if (this.userId) {
       if (this.userId) {
         $or = [];
