@@ -192,9 +192,16 @@ if (Meteor.isServer) {
   };
 }
 
-if (Meteor.isServer) Meteor.publish('rights', () => {
-  var query = { removed: { $exists: false } };
-  return Rights.find(query);
+if (Meteor.isServer) Meteor.publish('rights', function() {
+  this.autorun((computation) => {
+    var query = { removed: { $exists: false } };
+    if (this.userId) {
+      query.$or = [
+        { $or: Users.findOne(this.userId).mapJoining((join) => { return { source: join }}) }
+      ]
+    };
+    return Rights.find(query);
+  });
 });
 
 if (Meteor.isClient) Meteor.subscribe('rights');
