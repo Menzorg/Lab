@@ -37,14 +37,10 @@ function attachGraphSpreadingSpreader(collection) {
           if (
             lodash.includes(fieldNames, 'source') ||
             lodash.includes(fieldNames, 'target') ||
-            lodash.includes(fieldNames, 'guarantor')
-          ) {
-            $each.push('unspread', 'spread');
-          }
-          if (
+            lodash.includes(fieldNames, 'guarantor') ||
             lodash.includes(fieldNames, 'rightsTypes')
           ) {
-            $each.push('retype');
+            $each.push('unspread', 'spread', 'retype');
           }
           if ($each.length) {
             if (!modifier.$addToSet) modifier.$addToSet = {};

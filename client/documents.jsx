@@ -111,6 +111,7 @@ class _Document extends React.Component {
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'fetching')} label="fetching" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('fetching', value) }}/>
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'editing')} label="editing" style={{ width:  200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('editing', value) }}/>
             <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'owning')} label="owning" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('owning', value) }}/>
+            <Toggle defaultToggled={lodash.includes(document.rightsTypes, 'delegating')} label="delegating" style={{ width: 200 }} onToggle={(proxy, value) => { this.setRightTypeToRule('delegating', value) }}/>
           </div>
         </span>)
         :
@@ -125,6 +126,19 @@ class _Document extends React.Component {
       }
       {collection == Users?
         <div>
+          <div style={{ fontSize: '0.75em' }}>(drafts)</div>
+          {this.props.draftsItems.map((draft) => {
+            return <Documents
+              key={draft.ref()}
+              reference={draft.ref()}
+            />;
+          })}
+          {this.props.draftsRules.map((draft) => {
+            return <Documents
+              key={draft.ref()}
+              reference={draft.ref()}
+            />;
+          })}
           <div style={{ fontSize: '0.75em' }}>(shared)</div>
           {this.props.rules.map((rule) => {
             return <Documents
@@ -168,6 +182,10 @@ class _Document extends React.Component {
     
     if (!allowed) {
       style.fontStyle = 'italic';
+    }
+    
+    if (document.launched && document.launched.length) {
+      style.opacity = 0.5;
     }
     
     title = <span style={style}>{document.ref()}</span>;
@@ -217,6 +235,8 @@ var Document = createContainer(({ before, collection, document, recursion, refer
     allowed: Meteor.userId()?isAllowed(rightTypes, Meteor.user().ref(), document.ref()):false,
     rules: Rights.find({ root: { $exists: false }, $or: collection==Users?document.mapJoining((join) => { return { source: join }; }):[{ source: document.ref() }] }).fetch(),
     joins: Joining.find({ target: document.ref() }).fetch(),
+    draftsItems: Items.find({ __draft: { $exists: true } }).fetch(),
+    draftsRules: Rules.find({ __draft: { $exists: true } }).fetch(),
     reference
   };
 }, _Document);

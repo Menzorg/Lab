@@ -47,7 +47,7 @@ if (Meteor.isServer) {
               rule.source == rule.guarantor &&
               rule.source && getCollection(rule.source) == Users
             )) {
-              var resolution = isAllowed(rule.rightsTypes, rule.guarantor, newSpreadLink.target, true);
+              var resolution = isAllowed(['delegating', ...rule.rightsTypes], rule.guarantor, newSpreadLink.target, true);
               if (!resolution) {
                 return callback(undefined);
               }
@@ -154,7 +154,7 @@ if (Meteor.isServer) {
   Rights._queue.respread.insert = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        var allowed = isAllowed(rule.rightsTypes, rule.guarantor, link.target, true);
+        var allowed = isAllowed(['delegating', ...rule.rightsTypes], rule.guarantor, link.target, true);
         if (allowed) {
           Rights.spreading.spreadNewSpreadLink({
             [Rights.spreading.spreadGraph.constantField]: rule[Rules.graph.constantField],
@@ -174,7 +174,7 @@ if (Meteor.isServer) {
   Rights._queue.respread.remove = (link, callback) => {
     Rules.graph.fetch({ target: link.target }, undefined, (error, rules) => {
       async.each(rules, (rule, next) => {
-        var allowed = isAllowed(rule.rightsTypes, rule.guarantor, link.target, true);
+        var allowed = isAllowed(['delegating', ...rule.rightsTypes], rule.guarantor, link.target, true);
         if (!allowed) {
           Rights.graph.remove({
             spreader: rule.id

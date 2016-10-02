@@ -16,19 +16,16 @@ function isAllowed(types, sourceId, targetId, allRequired) {
   if (typeof(types) == 'string') types = [types];
   if (!sourceId && Meteor.userId()) sourceId = Meteor.user().ref();
   if (!sourceId || !targetId) return false;
-  if (refs.storage(sourceId) == Users && sourceId == targetId) return true;
+  if (refs.storage(targetId).findOne({ _id: refs.id(targetId), __draft: sourceId })) return true;
   else {
-    if (refs.storage(targetId).findOne({ _id: refs.id(targetId), __draft: sourceId })) return true;
-    else {
-      $subjects = refs.get(sourceId).mapJoining((join) => { return { source: join }});
-      
-      if (!allRequired) {
-        value = lodash.map(types, (type) => { return { rightsTypes: type }; });
-      } else {
-        value = { $all: types };
-      }
-      return !!Rights.findOne({ removed: { $exists: false }, target: targetId, $and: [{ $or: $subjects }, {[!allRequired?'$or':'rightsTypes']: value }] });
+    $subjects = refs.get(sourceId).mapJoining((join) => { return { source: join }});
+    
+    if (!allRequired) {
+      value = lodash.map(types, (type) => { return { rightsTypes: type }; });
+    } else {
+      value = { $all: types };
     }
+    return !!Rights.findOne({ removed: { $exists: false }, target: targetId, $and: [{ $or: $subjects }, {[!allRequired?'$or':'rightsTypes']: value }] });
   }
 };
 

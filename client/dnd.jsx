@@ -64,7 +64,7 @@ var Drag = DragSource('dnd', {
                       guarantor: drop.document.ref(),
                       source: drop.document.ref(),
                       target: drop.document.ref(),
-                      rightsTypes: ['fetching', 'editing', 'owning']
+                      rightsTypes: ['fetching', 'editing', 'owning', 'delegating']
                     })) });
                     break;
                 }
