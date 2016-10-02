@@ -215,7 +215,7 @@ var Document = createContainer(({ before, collection, document, recursion, refer
   return {
     before, collection, document, recursion,
     allowed: Meteor.userId()?isAllowed(rightTypes, Meteor.user().ref(), document.ref()):false,
-    rules: Rights.find({ root: { $exists: false }, source: document.ref() }).fetch(),
+    rules: Rights.find({ root: { $exists: false }, $or: collection==Users?document.mapJoining((join) => { return { source: join }; }):[{ source: document.ref() }] }).fetch(),
     joins: Joining.find({ target: document.ref() }).fetch(),
     reference
   };
