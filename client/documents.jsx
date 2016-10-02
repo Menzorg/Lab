@@ -184,7 +184,7 @@ class _Document extends React.Component {
       style.fontStyle = 'italic';
     }
     
-    if (document.launched && document.launched.length) {
+    if ((document.launched && document.launched.length) || (document.process && document.process.length)) {
       style.opacity = 0.5;
     }
     
