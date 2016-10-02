@@ -220,39 +220,48 @@ Rights.allow({
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    var retype = (newRight, oldRight, _right) => {
-      if (lodash.includes(newRight.rightsTypes, 'fetching') && !lodash.includes(oldRight.rightsTypes, 'fetching')) {
-        Rights._queue.insertRightType(_right, () => {
-          Rights.queue.removeFromLaunched(_right.id, 'retype');
-        });
-      } else if(!lodash.includes(newRight.rightsTypes, 'fetching') && lodash.includes(oldRight.rightsTypes, 'fetching')) {
-        Rights._queue.removeRightType(_right, () => {
-          Rights.queue.removeFromLaunched(_right.id, 'retype');
-        });
+    Rights.find({ launched: 'retype' }).observe({
+      added(right) {
+        var _right = Rights.graph._generateLink(right);
+        if (lodash.includes(_right.rightsTypes, 'fetching')) {
+          Rights._queue.insertRightType(_right, () => {
+            Rights.queue.removeFromLaunched(_right.id, 'retype');
+          });
+        } else {
+          Rights._queue.removeRightType(_right, () => {
+            Rights.queue.removeFromLaunched(_right.id, 'retype');
+          });
+        }
       }
-    };
-    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: false } }).observe({
+    });
+    Rights.find({ launched: 'respread', removed: { $exists: false } }).observe({
+      added(right) {
+        var _right = Rights.graph._generateLink(right);
+        Rights._queue.respread.insert(_right);
+      }
+    });
+    Rights.find({ launched: 'respread', removed: { $exists: true } }).observe({
+      added(right) {
+        var _right = Rights.graph._generateLink(right);
+        Rights._queue.respread.remove(_right);
+      }
+    });
+    Rights.find({ launched: 'respread' }).observe({
+      changed(right) {
+        var _right = Rights.graph._generateLink(right);
+        Rights._queue.respread(_right);
+      }
+    });
+    Rights.find({ process: { $not: { $size: 0 } }, removed: { $exists: false } }).observe({
       added(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.spread(_right);
-        Rights._queue.respread.insert(_right);
-      },
-      changed(newRight, oldRight) {
-        var _right = Rights.graph._generateLink(newRight);
-        Rights._queue.respread(_right);
-        retype(newRight, oldRight, _right);
       }
     });
-    Rights.find({ $or: [{ process: { $not: { $size: 0 } } }, { launched: { $not: { $size: 0 } } }], removed: { $exists: true } }).observe({
+    Rights.find({ process: { $not: { $size: 0 } }, removed: { $exists: true } }).observe({
       added(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.unspread(_right);
-        Rights._queue.respread.remove(_right);
-      },
-      changed(newRight, oldRight) {
-        var _right = Rights.graph._generateLink(newRight);
-        Rights._queue.respread(_right);
-        retype(newRight, oldRight, _right);
       }
     });
   });
