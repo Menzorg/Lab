@@ -6,3 +6,4 @@ import './imports/collections/owning';
 import './imports/collections/joining';
 import './imports/collections/rights';
 import './imports/collections/rules';
+import './imports/collections/posts';

@@ -10,6 +10,7 @@
     "ancient-graph-spreading": "0.0.10",
     "ancient-refs": "0.0.2",
     "async": "^2.0.1",
+    "bcrypt": "^0.8.7",
     "lodash": "^4.16.1",
     "material-ui": "^0.15.4",
     "meteor-node-stubs": "~0.2.0",
@@ -19,6 +20,6 @@
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.3.1",
     "react-tap-event-plugin": "^1.0.0",
-    "react-tooltip": "^3.1.8"
+    "react-tooltip": "^3.2.1"
   }
 }
