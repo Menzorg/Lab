@@ -127,7 +127,7 @@ class Page extends React.Component {
         <div>
           <br/>
           <span style={{ fontSize: '0.75em' }}>(Users)</span>
-          <Documents collection={Users} query={{}}/>
+          <Documents collection={Users} query={{ $or: [{'profile.guest': { $exists: false } }, { _id: Meteor.userId() }] }}/>
           <br/><br/>
           <span style={{ fontSize: '0.75em' }}>(Owning)</span>
           <Documents collection={Owning} query={{}} recursion={true}/>

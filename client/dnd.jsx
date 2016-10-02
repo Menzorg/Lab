@@ -34,7 +34,13 @@ var Drag = DragSource('dnd', {
       if (drop) {
         if (drop.action == 'authorization') {
           if (drag.collection == Users) {
-            Meteor.loginWithPassword(drag.document.username, drag.document.username);
+            try {
+              Meteor.loginWithPassword(drag.document.username, drag.document.username);
+            } catch(error) {
+              try {
+                Meteor.loginWithPassword(drag.document.username, drag.document._id);
+              } catch(error) {}
+            }
           }
         } else if (drop.action == 'addToSet') {
           drop.collection.update(drop.document._id, {
