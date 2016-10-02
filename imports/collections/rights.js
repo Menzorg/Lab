@@ -234,19 +234,19 @@ if (Meteor.isServer) {
         }
       }
     });
-    Rights.find({ launched: 'respread', removed: { $exists: false } }).observe({
+    Rights.find({ launched: 'respread', $or: [{ process: { $exists: false } }, { process: { $size: 0 } }], removed: { $exists: false } }).observe({
       added(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.respread.insert(_right);
       }
     });
-    Rights.find({ launched: 'respread', removed: { $exists: true } }).observe({
+    Rights.find({ launched: 'respread', $or: [{ process: { $exists: false } }, { process: { $size: 0 } }], removed: { $exists: true } }).observe({
       added(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.respread.remove(_right);
       }
     });
-    Rights.find({ launched: 'respread' }).observe({
+    Rights.find({ launched: 'respread', $or: [{ process: { $exists: false } }, { process: { $size: 0 } }] }).observe({
       changed(right) {
         var _right = Rights.graph._generateLink(right);
         Rights._queue.respread(_right);
