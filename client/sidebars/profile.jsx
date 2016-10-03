@@ -9,7 +9,10 @@ import Layers from 'material-ui/svg-icons/maps/layers';
 import LayersClear from 'material-ui/svg-icons/maps/layers-clear';
 import ArrowForward from 'material-ui/svg-icons/navigation/arrow-forward';
 
-export default class extends React.Component {
+import LoginForm from '../forms/login';
+import LogoutForm from '../forms/logout';
+
+class Profile extends React.Component {
   constructor() {
     super();
     
@@ -39,7 +42,7 @@ export default class extends React.Component {
   
   render() {
     var LayersTag = this.state.layers?LayersClear:Layers;
-    
+    console.log(this.context.user);
     return (
       <Sidebar
         open={this.state.layers?this.state.open:false}
@@ -71,6 +74,11 @@ export default class extends React.Component {
                 </IconButton>
               }
             />
+            <div style={{ padding: 16 }}>
+              {this.context.user&&this.context.user.loginStateSignedUp?
+                <LogoutForm/>:<LoginForm/>
+              }
+            </div>
           </div>
         }
         docked={this.state.layers?false:this.state.open}
@@ -88,3 +96,9 @@ export default class extends React.Component {
     );
   }
 }
+
+Profile.contextTypes = {
+  user: React.PropTypes.any
+};
+
+export default Profile;

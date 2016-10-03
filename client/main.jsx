@@ -1,4 +1,6 @@
 import { Meteor } from 'meteor/meteor';
+import { createContainer } from 'meteor/react-meteor-data';
+
 import React from 'react';
 import { render } from 'react-dom';
 
@@ -11,7 +13,13 @@ import Bar from './bar';
 import SidebarProfile from './sidebars/profile';
 import SidebarNavigation from './sidebars/navigation';
 
-class Env extends React.Component {
+class MainComponent extends React.Component {
+  getChildContext() {
+    return {
+      user: this.props.user,
+      userId: this.props.userId
+    };
+  }
   render() {
     return (
       <MuiThemeProvider>
@@ -38,6 +46,20 @@ class Env extends React.Component {
   }
 }
 
+MainComponent.childContextTypes = {
+  user: React.PropTypes.any,
+  userId: React.PropTypes.any
+};
+
+var MainContainer = createContainer(() => {
+  var subscription = Meteor.subscribe('users', { _id: Meteor.userId() });
+  return {
+    __userReady: subscription.ready(),
+    userId: Meteor.userId(),
+    user: Meteor.user()
+  }
+}, MainComponent);
+
 Meteor.startup(() => {
-  render(<Env/>, document.getElementById('react'));
+  render(<MainContainer/>, document.getElementById('react'));
 });

@@ -11,6 +11,8 @@
     "ancient-refs": "0.0.2",
     "async": "^2.0.1",
     "bcrypt": "^0.8.7",
+    "formsy-material-ui": "^0.5.0",
+    "formsy-react": "^0.18.1",
     "lodash": "^4.16.1",
     "material-ui": "^0.15.4",
     "meteor-node-stubs": "~0.2.0",
