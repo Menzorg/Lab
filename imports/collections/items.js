@@ -43,8 +43,6 @@ if (Meteor.isServer) Meteor.publish('items', function(query) {
   });
 });
 
-if (Meteor.isClient) Meteor.subscribe('items');
-
 if (Meteor.isServer) {
   attachDraftField(Items);
 }

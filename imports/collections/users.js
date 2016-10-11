@@ -48,13 +48,12 @@ if (Meteor.isServer) {
 
 if (Meteor.isServer) Meteor.publish('users', function(query) {
   this.autorun((computation) => {
-    if (typeof(query) != 'object') query = {};
     query.removed = { $exists: false };
     return Users.find(query);
   });
 });
 
-if (Meteor.isClient) Meteor.subscribe('users');
+// if (Meteor.isClient) Meteor.subscribe('users');
 
 Users.helpers({
   mapJoining(handler) {

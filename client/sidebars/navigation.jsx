@@ -9,12 +9,14 @@ import Layers from 'material-ui/svg-icons/maps/layers';
 import LayersClear from 'material-ui/svg-icons/maps/layers-clear';
 import ArrowBack from 'material-ui/svg-icons/navigation/arrow-back';
 
-export default class extends React.Component {
+import { Tree } from '../tree';
+
+class Navigation extends React.Component {
   constructor() {
     super();
     
     this.state = {
-      open: false,
+      open: true,
       layers: false
     };
   }
@@ -47,29 +49,51 @@ export default class extends React.Component {
           <div style={{
             width: 300,
             height: '100%',
-            backgroundColor: colors.white
+            backgroundColor: colors.white,
+            overflow: 'auto'
           }}>
-            <AppBar
-              style={{ backgroundColor: colors.white }}
-              iconElementRight={
-                <IconButton
-                  onTouchTap={() => {
-                    this.toggleLayers();
-                  }}
-                >
-                  <LayersTag color={colors.black}/>
-                </IconButton>
-              }
-              iconElementLeft={
-                <IconButton
-                  onTouchTap={() => {
-                    this.toggleOpen();
-                  }}
-                >
-                  <ArrowBack color={colors.black}/>
-                </IconButton>
-              }
-            />
+            <table style={{ width: 'auto', minWidth: '100%', height: 'auto' }}>
+              <tbody>
+                <tr>
+                  <td style={{ height: 64 }}>
+                    <AppBar
+                      style={{
+                        width: '100%',
+                        position: 'absolute',
+                        top: 0, left: 0,
+                        backgroundColor: colors.white
+                      }}
+                      iconElementRight={
+                        <IconButton
+                          onTouchTap={() => {
+                            this.toggleLayers();
+                          }}
+                        >
+                          <LayersTag color={colors.black}/>
+                        </IconButton>
+                      }
+                      iconElementLeft={
+                        <IconButton
+                          onTouchTap={() => {
+                            this.toggleOpen();
+                          }}
+                        >
+                          <ArrowBack color={colors.black}/>
+                        </IconButton>
+                      }
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <Tree
+                      collection={Users}
+                      query={{ _id: this.context.userId }}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         }
         docked={this.state.layers?false:this.state.open}
@@ -87,3 +111,10 @@ export default class extends React.Component {
     );
   }
 }
+
+Navigation.contextTypes = {
+  user: React.PropTypes.any,
+  userId: React.PropTypes.any
+};
+
+export default Navigation;

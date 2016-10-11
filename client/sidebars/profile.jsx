@@ -17,7 +17,7 @@ class Profile extends React.Component {
     super();
     
     this.state = {
-      open: false,
+      open: true,
       layers: false
     };
   }
@@ -42,7 +42,7 @@ class Profile extends React.Component {
   
   render() {
     var LayersTag = this.state.layers?LayersClear:Layers;
-    console.log(this.context.user);
+    
     return (
       <Sidebar
         open={this.state.layers?this.state.open:false}

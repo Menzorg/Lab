@@ -24,7 +24,7 @@ class Login extends React.Component {
       disabled: true
     });
   }
-  submit(form) {
+  login(form) {
     Meteor.loginWithPassword(form.email, form.password, (error) => {
       var setState = {
         errors: {}
@@ -41,10 +41,40 @@ class Login extends React.Component {
       this.setState(setState);
     });
   }
+  login() {
+    var model = this.refs.form.getModel();
+    
+    Meteor.loginWithPassword(model.email, model.password, (error) => {
+      var setState = {
+        errors: {}
+      };
+      
+      if (error) {
+        if (error.reason == 'User not found') {
+          setState.errors.email = error.reason;
+        } else if (error.reason == 'Incorrect password') {
+          setState.errors.password = error.reason;
+        }
+      }
+      
+      this.setState(setState);
+    });
+  }
+  create() {
+    if (!this.state.disabled) {
+      var model = this.refs.form.getModel();
+      Accounts.createUser({
+        username: model.email,
+        email: model.email,
+        password: model.password
+      });
+    }
+  }
   render() {
     return (
       <Form
-        onValidSubmit={(...args) => this.submit(...args)}
+        ref="form"
+        onValidSubmit={() => this.login()}
         onValid={() => this.enable()} onInvalid={() => this.disable()}
         validationErrors={this.state.errors}
         onChange={() => this.setState({ errors: {} })}
@@ -58,8 +88,16 @@ class Login extends React.Component {
           placeholder="password" name="password" required
           style={{ width: '100%' }}
         />
-        <RaisedButton label="login" fullWidth={true} disabled={this.state.disabled} type="submit"/>
-        <RaisedButton label="create" fullWidth={true}/>
+        <RaisedButton
+          label="login"
+          fullWidth={true} disabled={this.state.disabled}
+          type="submit"
+        />
+        <RaisedButton
+          label="create"
+          fullWidth={true} disabled={this.state.disabled}
+          onTouchTap={() => this.create()}
+        />
       </Form>
     );
   }
