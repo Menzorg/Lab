@@ -13,14 +13,17 @@ import { Router, Route, Link, browserHistory } from 'react-router'
 
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import Bar from './bar';
 import SidebarProfile from './sidebars/profile';
 import SidebarNavigation from './sidebars/navigation';
 import Documents from './documents';
 import Document from './document';
+import { refs } from '../imports/refs';
 import { Drop, Context as DNDContext } from './dnd';
 import { Badge } from  './badge';
+import muiTheme from './theme';
 
 class MainComponent extends React.Component {
   getChildContext() {
@@ -31,7 +34,7 @@ class MainComponent extends React.Component {
   }
   render() {
     return (
-      <MuiThemeProvider>
+      <MuiThemeProvider muiTheme={getMuiTheme(muiTheme)}>
         <DNDContext>
           <SidebarProfile ref="sidebarProfile">
             <SidebarNavigation ref="sidebarNavigation">
@@ -92,9 +95,48 @@ class MainComponent extends React.Component {
                               subtitle="Rules"
                             />
                             <CardText>
-                              <RaisedButton label="subject" disabled={true} style={{ width: '33%' }}/>
-                              <RaisedButton label="object" disabled={true} style={{ width: '33%' }}/>
-                              <RaisedButton label="guarantor" disabled={true} style={{ width: '33%' }}/>
+                              <Card>
+                                <CardHeader
+                                  textStyle={{ width: '100%' }}
+                                  title={
+                                    <span>
+                                      Subject
+                                      <div style={{ float: 'right' }}>
+                                        <Badge document={refs.get(document.source)}/>
+                                      </div>
+                                    </span>
+                                  }
+                                  subtitle="Those for whom this rule?"
+                                />
+                              </Card>
+                              <Card>
+                                <CardHeader
+                                  textStyle={{ width: '100%' }}
+                                  title={
+                                    <span>
+                                      Object
+                                      <div style={{ float: 'right' }}>
+                                        <Badge document={refs.get(document.target)}/>
+                                      </div>
+                                    </span>
+                                  }
+                                  subtitle="At what was issued this rule?"
+                                />
+                              </Card>
+                              <Card>
+                                <CardHeader
+                                  textStyle={{ width: '100%' }}
+                                  title={
+                                    <span>
+                                      Guarantor
+                                      <div style={{ float: 'right' }}>
+                                        <Badge document={refs.get(document.guarantor)}/>
+                                      </div>
+                                    </span>
+                                  }
+                                  subtitle="Who guarantees the rule of their rights?"
+                                />
+                              </Card>
                             </CardText>
                           </Card>;
                         } else if (collection == Items){

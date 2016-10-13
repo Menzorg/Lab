@@ -17,81 +17,88 @@ import Recursion from './recursion';
 /**
  * Unibersal symbol of any document or ref in document field.
  * Two stages: !_subscription && !!_subscription.
- * Can be labled.
  * Reaction can be revrited.
  */
 class Badge extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
-      droppable: false,
-      disabled: false,
-      droppable: false
+      dragging: false
     };
+  }
+  zDepthApply(zDepth) {
+    this.refs.originBadge.setState({ zDepth });
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.zDepth) {
+      this.zDepthApply(nextProps.zDepth);
+    }
   }
   render() {
     var badge, label;
-    var { _subscription, document, field, style } = this.props;
+    var { _subscription, document } = this.props;
     
-    if (_subscription && document) {
+    var buttonProps = () => {
+      var {
+        backgroundColor, buttonStype, className,
+        disabledBackgroundColor, disabledLabelColor,
+        fullWidth, href, icon, label, labelColor,
+        labelPosition, labelStyle, primary, rippleStyle, secondary, style,
+      } = this.props;
+      return {
+        backgroundColor, buttonStype, className,
+        disabledBackgroundColor, disabledLabelColor,
+        fullWidth, href, icon, label, labelColor,
+        labelPosition, labelStyle, primary, rippleStyle, secondary, style,
+      };
+    }
+    
+    if (document) {
       label = <span>
         {document?document.ref():null}
-        {field?<small>{field}</small>:null}
       </span>;
-      
       badge = (
-        <Drop
-          onDragStart={(drag) => {
-            this.setState({ droppable: true });
+        <Drag
+          ref="drag"
+          document={document}
+          onDrag={() => {
+            this.setState({ dragging: true });
+            this.refs.dragBadge.setState({ zDepth: 5 });
           }}
-          onDragStop={() => {
-            this.setState({ droppable: false });
-          }}
-          onDrop={(drag) => {
-            if (this.props.onDrop) {
-              this.props.onDrop(drag);
-            }
-          }}
-        >
-          <Drag
-            ref="drag"
-            document={document}
-            onDrag={() => {
-              this.refs.dragButton.setState({ zDepth: 5 })
-            }}
-            component={
-              <RaisedButton
-                ref="dragButton"
-                label={label}
-                labelStyle={{ textTransform: 'none' }}
-              />
-            }
-          >
+          onDragStop={() => this.setState({ dragging: false })}
+          component={
             <RaisedButton
-              ref="originButton"
-              label={label}
+              ref="dragBadge"
+              label={document.ref()}
               labelStyle={{ textTransform: 'none' }}
-              disabled={this.state.disabled?true:!!document}
-              onTouchTap={() => { browserHistory.push('/'+document.ref()); }}
-              style={style}
-            />
-          </Drag>
-        </Drop>
+              {...buttonProps}
+            >{this.props.children}</RaisedButton>
+          }
+        >
+          <RaisedButton
+            onTouchTap={() => browserHistory.push('/'+document.ref())}
+            ref="originBadge"
+            label={document.ref()}
+            disabled={this.props.disabled||this.state.dragging}
+            labelStyle={{ textTransform: 'none' }}
+            {...buttonProps}
+          >{this.props.children}</RaisedButton>
+        </Drag>
       );
-      
-      return badge;
     } else {
       return null;
     }
+    
+    return badge;
   }
 }
 
 Badge.propTypes = {
-  _subscription: React.PropTypes.any,
-  collection: React.PropTypes.any,
+  onDragStart: React.PropTypes.func,
+  onDragStart: React.PropTypes.func,
+  onDrag: React.PropTypes.func,
   document: React.PropTypes.any,
-  field: React.PropTypes.string,
-  style: React.PropTypes.object,
+  disabled: React.PropTypes.bool
 };
 
 export { Badge };
